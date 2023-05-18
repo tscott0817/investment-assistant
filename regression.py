@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression, ElasticNet
 from sklearn import linear_model
+import tkinter as tk
 
 # GUI
 from tkinter import *
@@ -111,11 +112,23 @@ def plot(main_window):
     ax.set_ylabel('Average Daily Market Value')
     ax.legend(poly_degree_values)
 
+    # Change the x axis label to be horizontal
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(45)
+
+    # # Change the size of the plot
+    # fig.set_size_inches(3, 3)
+    # fig.tight_layout()
+
     # creating the Tkinter canvas
     # containing the Matplotlib figure
     canvas = FigureCanvasTkAgg(fig, master=main_window)
+    # canvas.draw()
+    canvas.get_tk_widget().grid(row=1, column=1, sticky="nsew")
+    # Change size of canvas
+    canvas.get_tk_widget().config(width=main_window.winfo_screenwidth() * 0.2, height=main_window.winfo_screenheight() * 0.2)
     canvas.draw()
-    canvas.get_tk_widget().grid(row=5, column=5, sticky="nsew")
+
 
     # creating the Matplotlib toolbar
     # toolbar = NavigationToolbar2Tk(canvas, main_window)
@@ -124,5 +137,4 @@ def plot(main_window):
     toolbar.update()
 
     # placing the toolbar on the Tkinter window
-    canvas.get_tk_widget().grid(row=5, column=5, sticky="nsew")
-    # canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().grid(row=1, column=1, sticky="nsew")

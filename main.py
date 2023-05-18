@@ -32,29 +32,40 @@ def main():
     main_window = tk.Tk()
     main_window.title("Investment Assistance")
     # main_window.geometry("1920x1080")
-    main_window.geometry("1280x720")
-    # main_window.geometry("960x540")
+    # main_window.geometry("1280x720")
+    main_window.geometry("960x540")
     main_window.configure(bg="white")
     main_window.resizable(False, False)
+
+    # TODO: Put in own function
     screen_dpi = main_window.winfo_fpixels('1i')
     screen_width = main_window.winfo_screenwidth()
     screen_height = main_window.winfo_screenheight()
     print(f"Screen DPI: {screen_dpi}")
     print(f"Screen Width: {screen_width}")
     print(f"Screen Height: {screen_height}")
+    main_window.update()
+    window_dpi = main_window.winfo_fpixels('1i')
+    window_width = main_window.winfo_width()
+    window_height = main_window.winfo_height()
+    print(f"Window DPI: {window_dpi}")
+    print(f"Window Width: {window_width}")
+    print(f"Window Height: {window_height}")
 
     # TODO: Probably move out of main
     # Colors
+    color_search = "#729adb"
+    color_display = "#e6e6e6"
 
     # TODO: Put here until mainloop() in own function to mimic "while running" and put init vars outside of it
     # Create a label
     label_main = ttk.Label(main_window, text="Welcome! Let me assist you.")
-    label_main.grid(row=0, column=3, padx=20, pady=20)
+    label_main.grid(row=0, column=0, padx=20, pady=20)
 
     # Create a canvas that hold the entry_stock, entry_sd, entry_ed, and button
-    canvas = tk.Canvas(main_window, width=screen_width * .5,
-                       height=screen_height, bg='#729adb')
-    canvas.grid(row=0, column=0, padx=0, pady=0)
+    canvas = tk.Canvas(main_window, width=window_width * .5,
+                       height=window_height, bg=color_search)
+    canvas.grid(row=1, column=0, padx=0, pady=0)
     canvas.update()
     c_width = canvas.winfo_width()
     c_height = canvas.winfo_height()
@@ -63,37 +74,53 @@ def main():
     # add outline to canvas
 
     # Create an Entry widget to accept User Input
-    entry_stock = Entry(canvas, width=int(canvas.winfo_width() * .5), font='Arial 18')
+    # entry_stock = Entry(canvas, width=int(canvas.winfo_width() * .025), font='Arial 18')
+    entry_stock = Entry(canvas, width=int(canvas.winfo_width() * .1))
+    # Fill entry_stock with default text
+    entry_stock.insert(0, "Enter Stock Symbol")
+    entry_stock.bind("<Button-1>", lambda event: entry_stock.delete(0, "end"))
     entry_stock.grid(row=0, column=0, padx=20, pady=20)
     entry_stock.focus_set()
     entry_stock.update()
     # entry_stock.pack_propagate(False)
 
     # Start date
-    # entry_sd = Entry(canvas, width=20, font='Arial 24')
-    # entry_sd.grid(row=1, column=0, padx=20, pady=20)
-    # entry_sd.focus_set()
-    # entry_sd.update()
-    #
-    # # End date
-    # entry_ed = Entry(canvas, width=20, font='Arial 24')
-    # entry_ed.grid(row=2, column=0, padx=20, pady=20)
-    # entry_ed.focus_set()
-    # entry_ed.update()
-    #
-    # # All algorithms are run when this button is pressed.
-    # button = ttk.Button(canvas, text="Run Algorithms", width=20, style="run_button.TButton",
-    #                     command=lambda: run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()))
-    # button.grid(row=3, column=0, padx=20, pady=20, ipadx=80, ipady=40)
-    #
-    # # TODO: Move somewhere else
-    # style = ttk.Style()
-    # style.configure("run_button.TButton", font=("Arial", 14))
+    entry_sd = Entry(canvas, width=int(canvas.winfo_width() * .1))
+    entry_sd.insert(0, "Enter a Start Date")
+    entry_sd.bind("<Button-1>", lambda event: entry_sd.delete(0, "end"))
+    entry_sd.grid(row=1, column=0, padx=20, pady=20)
+    entry_sd.focus_set()
+    entry_sd.update()
+
+    # End date
+    entry_ed = Entry(canvas, width=int(canvas.winfo_width() * .1))
+    entry_ed.insert(0, "Enter an End Date")
+    # Make the text disappear box is selected
+    entry_ed.bind("<Button-1>", lambda event: entry_ed.delete(0, "end"))
+    entry_ed.grid(row=2, column=0, padx=20, pady=20)
+    entry_ed.focus_set()
+    entry_ed.update()
+
+    # All algorithms are run when this button is pressed.
+    button = ttk.Button(canvas, text="Run Algorithms", width=20, style="run_button.TButton",
+                        command=lambda: run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()))
+    button.grid(row=3, column=0, padx=20, pady=20, ipadx=80, ipady=40)
+
+    # TODO: Move somewhere else
+    style = ttk.Style()
+    style.configure("run_button.TButton", font=("Arial", 14))
+
+    # TODO: Graph Stuff
+    # canvas_graph = tk.Canvas(main_window, width=window_width * .5,
+    #                    height=window_height, bg="#d65c47")
+    # canvas_graph.grid(row=0, column=3, padx=0, pady=0)
+    # canvas_graph.update()
+    # display_plots(canvas_graph)
 
     # Set widgets theme
     # sv_ttk.set_theme("light")
 
-    main_window.resizable(True, True)
+    # main_window.resizable(True, True)
     main_window.mainloop()
 
     # Delete extra files when the program exits
@@ -104,6 +131,8 @@ def main():
 
 
 stock_data_list = []  # Holds the .csv data for each searched stock
+plot_list = []
+model_hi_lo = None
 def run_search(stock, start_date, end_date):
     '''
         Inits and User Input
@@ -156,6 +185,7 @@ def run_search(stock, start_date, end_date):
         '''
         regression_result = regression.regression_pred(stock_data)  # Pass the csv file to objects
         print(regression_result)
+        regression.plot(main_window)
         # macd_result = macd.macd_pred(stock_data)
         # svm_result = svm.svm_pred(stock_data)
         # random_forest.random_forest_pred(stock_data)
@@ -165,10 +195,9 @@ def run_search(stock, start_date, end_date):
         # sentimentAnalysis.sentiment_analysis_subreddit(stock)
         # sentimentAnalysisPretrainedBert.sentiment_analysis(stock)
 
-        global main_window
-        def display_plots():
-            regression.plot(main_window)
-        display_plots()
+
+        # TODO: This is really gross
+
 
         # # Add all results to list
         # results = [regression_result, macd_result, svm_result, arima_result, garch_result, investor_analysis_result]
@@ -190,6 +219,15 @@ def run_search(stock, start_date, end_date):
     else:
         print("Stock does not exist. Please try again.")
 
+# def add_plots(plot):
+#     global plot_list
+#     plot_list.append(plot)
+# def display_plots(container):
+#     # print(len(plot_list))
+#     # plot_list[0].plot(container)
+#     # regression.plot(container)
+#     global model_hi_lo
+#     model_hi_lo.plot(container)
 
 if __name__ == "__main__":
     main()
