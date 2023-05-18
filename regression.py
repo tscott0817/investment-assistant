@@ -7,6 +7,8 @@ from sklearn.linear_model import LinearRegression, ElasticNet
 from sklearn import linear_model
 import tkinter as tk
 
+import requests
+
 # GUI
 from tkinter import *
 from matplotlib.figure import Figure
