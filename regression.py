@@ -85,17 +85,18 @@ def nonlinear_regression_elastic(X, y, degree, alpha, l1_ratio):
     y_pred = model.predict(X_poly)
     return y_pred, model.coef_
 
-def plot(main_window):
+def plot(plot_window):
     global data
     global data_csv
     global X
     global Y
+    # Create  new window for the plots to display in
     poly_degree_values = [2, 3, 4, 6, 8]
     plot_colors = ['red', 'blue', 'green', 'orange', 'purple']
 
     # fig, ax = plt.subplots()  # Create Figure and Axes objects
     # TODO: Make relative to window size, not hardcoded
-    fig, ax = plt.subplots(figsize=(4, 3))  # Create Figure and Axes objects
+    fig, ax = plt.subplots(figsize=(6, 3))  # Create Figure and Axes objects
     # fig, ax = plt.subplots(figsize=(main_window.winfo_screenwidth() * 0.5, 6))  # Adjust the height as needed
 
     for i, degree in enumerate(poly_degree_values):
@@ -116,25 +117,22 @@ def plot(main_window):
     for tick in ax.get_xticklabels():
         tick.set_rotation(45)
 
-    # # Change the size of the plot
-    # fig.set_size_inches(3, 3)
-    # fig.tight_layout()
-
     # creating the Tkinter canvas
     # containing the Matplotlib figure
-    canvas = FigureCanvasTkAgg(fig, master=main_window)
+    canvas = FigureCanvasTkAgg(fig, master=plot_window)
     # canvas.draw()
-    canvas.get_tk_widget().grid(row=1, column=1, sticky="nsew")
+    # canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
     # Change size of canvas
-    canvas.get_tk_widget().config(width=main_window.winfo_screenwidth() * 0.2, height=main_window.winfo_screenheight() * 0.2)
+    #canvas.get_tk_widget().config(width=plot_window.winfo_screenwidth(), height=plot_window.winfo_screenheight())
     canvas.draw()
 
 
     # creating the Matplotlib toolbar
-    # toolbar = NavigationToolbar2Tk(canvas, main_window)
     # change toolbar to use the grid layout manager
-    toolbar = NavigationToolbar2Tk(canvas, main_window, pack_toolbar=False)
+    toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
     toolbar.update()
 
     # placing the toolbar on the Tkinter window
-    canvas.get_tk_widget().grid(row=1, column=1, sticky="nsew")
+    # canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)

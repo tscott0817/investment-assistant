@@ -24,6 +24,8 @@ import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Must be >= Windows 8.1
 
 main_window = None
+plot_window = None
+plot_drawn = False
 def main():
 
     # Window
@@ -33,9 +35,29 @@ def main():
     main_window.title("Investment Assistance")
     # main_window.geometry("1920x1080")
     # main_window.geometry("1280x720")
-    main_window.geometry("960x540")
+    # main_window.geometry("960x540")
+    main_window.geometry("500x500")
     main_window.configure(bg="white")
     main_window.resizable(False, False)
+
+    # global plot_drawn
+    # if plot_drawn:
+    #     print("Can draw plots")
+    #     # global plot_window
+    #     # plot_window = tk.Toplevel()
+    #     # plot_window.title("Plots")
+    #     # plot_window.geometry("960x540")
+    #     # plot_window.configure(bg="white")
+    #     # plot_window.resizable(False, False)
+    # else:
+    #     # TODO: remove previously drawn plots
+    #     pass
+    # global plot_window
+    # plot_window = tk.Toplevel()
+    # plot_window.title("Plots")
+    # plot_window.geometry("960x540")
+    # plot_window.configure(bg="white")
+    # plot_window.resizable(False, False)
 
     # TODO: Put in own function
     screen_dpi = main_window.winfo_fpixels('1i')
@@ -55,67 +77,75 @@ def main():
     # TODO: Probably move out of main
     # Colors
     color_search = "#729adb"
-    color_display = "#e6e6e6"
+    color_display = "#de804e"
 
     # TODO: Put here until mainloop() in own function to mimic "while running" and put init vars outside of it
     # Create a label
     label_main = ttk.Label(main_window, text="Welcome! Let me assist you.")
-    label_main.grid(row=0, column=0, padx=20, pady=20)
+    # label_main.grid(row=0, column=0, padx=20, pady=20)
+    label_main.pack(side="top", fill="both", expand=True)
 
     # Create a canvas that hold the entry_stock, entry_sd, entry_ed, and button
-    canvas = tk.Canvas(main_window, width=window_width * .5,
+    canvas_left = tk.Canvas(main_window, width=window_width * .5,
                        height=window_height, bg=color_search)
-    canvas.grid(row=1, column=0, padx=0, pady=0)
-    canvas.update()
-    c_width = canvas.winfo_width()
-    c_height = canvas.winfo_height()
-    print(f"Canvas Size: {c_width}x{c_height}")
-    # canvas.pack_propagate(False)
-    # add outline to canvas
+    # canvas_left.grid(row=1, column=0, padx=0, pady=0, sticky='W')
+    # canvas_left.pack(side="left", fill="both", expand=True)
+    canvas_left.pack(side="left", fill="both")
 
-    # Create an Entry widget to accept User Input
-    # entry_stock = Entry(canvas, width=int(canvas.winfo_width() * .025), font='Arial 18')
-    entry_stock = Entry(canvas, width=int(canvas.winfo_width() * .1))
-    # Fill entry_stock with default text
+    canvas_left.update()
+    cl_width = canvas_left.winfo_width()
+    cl_height = canvas_left.winfo_height()
+    print(f"Canvas Size: {cl_width}x{cl_height}")
+
+    # # Create an Entry widget to accept User Input
+    entry_stock = Entry(canvas_left, width=cl_width)
     entry_stock.insert(0, "Enter Stock Symbol")
     entry_stock.bind("<Button-1>", lambda event: entry_stock.delete(0, "end"))
-    entry_stock.grid(row=0, column=0, padx=20, pady=20)
+    # entry_stock.grid(row=0, column=0, padx=20, pady=20)
+    # Use pack to put entry_stock in the middle of the canvas
+    entry_stock.pack(side="top", fill="both")
     entry_stock.focus_set()
     entry_stock.update()
-    # entry_stock.pack_propagate(False)
 
     # Start date
-    entry_sd = Entry(canvas, width=int(canvas.winfo_width() * .1))
+    entry_sd = Entry(canvas_left, width=int(canvas_left.winfo_width() * .1))
     entry_sd.insert(0, "Enter a Start Date")
     entry_sd.bind("<Button-1>", lambda event: entry_sd.delete(0, "end"))
-    entry_sd.grid(row=1, column=0, padx=20, pady=20)
+    # entry_sd.grid(row=1, column=0, padx=20, pady=20)
+    entry_sd.pack(side="top", fill="both")
     entry_sd.focus_set()
     entry_sd.update()
 
     # End date
-    entry_ed = Entry(canvas, width=int(canvas.winfo_width() * .1))
+    entry_ed = Entry(canvas_left, width=int(canvas_left.winfo_width() * .1))
     entry_ed.insert(0, "Enter an End Date")
-    # Make the text disappear box is selected
     entry_ed.bind("<Button-1>", lambda event: entry_ed.delete(0, "end"))
-    entry_ed.grid(row=2, column=0, padx=20, pady=20)
+    # entry_ed.grid(row=2, column=0, padx=20, pady=20)
+    entry_ed.pack(side="top", fill="both")
     entry_ed.focus_set()
     entry_ed.update()
 
     # All algorithms are run when this button is pressed.
-    button = ttk.Button(canvas, text="Run Algorithms", width=20, style="run_button.TButton",
-                        command=lambda: run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()))
-    button.grid(row=3, column=0, padx=20, pady=20, ipadx=80, ipady=40)
+    # button = ttk.Button(canvas_left, text="Run Algorithms", width=20, style="run_button.TButton",
+    #                     command=lambda: run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()))
+    button = ttk.Button(canvas_left, text="Run Algorithms", width=20, style="run_button.TButton",
+                        command=lambda: (plot_draw(), run_search(entry_stock.get(), entry_sd.get(), entry_ed.get())))
+
+    # button.grid(row=3, column=0, padx=20, pady=20, ipadx=80, ipady=40)
+    button.pack(side="top", fill="both")
 
     # TODO: Move somewhere else
     style = ttk.Style()
     style.configure("run_button.TButton", font=("Arial", 14))
 
-    # TODO: Graph Stuff
-    # canvas_graph = tk.Canvas(main_window, width=window_width * .5,
-    #                    height=window_height, bg="#d65c47")
-    # canvas_graph.grid(row=0, column=3, padx=0, pady=0)
-    # canvas_graph.update()
-    # display_plots(canvas_graph)
+    canvas_right = tk.Canvas(main_window, width=window_width * .5,
+                       height=window_height, bg=color_display)
+    # canvas_right.grid(row=0, column=1, padx=0, pady=0, sticky='E')
+    canvas_right.pack(side="right", fill="both", expand=True)
+    canvas_right.update()
+    cr_width = canvas_right.winfo_width()
+    cr_height = canvas_right.winfo_height()
+    print(f"Canvas Size: {cr_width}x{cr_height}")
 
     # Set widgets theme
     # sv_ttk.set_theme("light")
@@ -128,7 +158,13 @@ def main():
     for s_data in stock_data_list:
         os.remove(s_data)
 
-
+def plot_draw():
+    global plot_window
+    plot_window = tk.Toplevel()
+    plot_window.title("Plots")
+    plot_window.geometry("960x540")
+    plot_window.configure(bg="white")
+    plot_window.resizable(False, False)
 
 stock_data_list = []  # Holds the .csv data for each searched stock
 plot_list = []
@@ -185,7 +221,8 @@ def run_search(stock, start_date, end_date):
         '''
         regression_result = regression.regression_pred(stock_data)  # Pass the csv file to objects
         print(regression_result)
-        regression.plot(main_window)
+        global plot_window
+        regression.plot(plot_window)
         # macd_result = macd.macd_pred(stock_data)
         # svm_result = svm.svm_pred(stock_data)
         # random_forest.random_forest_pred(stock_data)
@@ -219,15 +256,6 @@ def run_search(stock, start_date, end_date):
     else:
         print("Stock does not exist. Please try again.")
 
-# def add_plots(plot):
-#     global plot_list
-#     plot_list.append(plot)
-# def display_plots(container):
-#     # print(len(plot_list))
-#     # plot_list[0].plot(container)
-#     # regression.plot(container)
-#     global model_hi_lo
-#     model_hi_lo.plot(container)
 
 if __name__ == "__main__":
     main()
