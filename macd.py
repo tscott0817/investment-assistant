@@ -39,31 +39,11 @@ def macd_pred(csv_file_path):
         print("This stock has poor returns.\n")
         decision = 0
 
-    # # Plotting MACD and Signal line
-    # plt.figure(figsize=(12,5))
-    # plt.plot(df['MACD'], label='MACD', color = 'red')
-    # plt.plot(df['Signal'], label='Signal Line', color='blue')
-    # plt.title('MACD and Signal Line')
-    # plt.legend(loc='upper left')
-    # plt.show()
-    #
-    # # Plotting Cumulative Returns
-    # plt.figure(figsize=(12,5))
-    # plt.plot(df['Cumulative_Returns'], label='Cumulative Returns', color = 'green')
-    # plt.title('Cumulative Returns')
-    # plt.legend(loc='upper left')
-    # plt.show()
-
     return decision
 
 
 def plot(plot_window):
     global df
-
-    # Create a new window for the plots to display in
-    # plot_window = tk.Toplevel()
-    # plot_window.title('Plot Window')
-
     # Plotting MACD and Signal line
     fig1, ax1 = plt.subplots(figsize=(12, 5))
     ax1.plot(df['MACD'], label='MACD', color='red')
@@ -75,9 +55,9 @@ def plot(plot_window):
     canvas1.draw()
     canvas1.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    # toolbar1 = NavigationToolbar2Tk(canvas1, plot_window)
-    # toolbar1.update()
-    # toolbar1.pack(side=tk.BOTTOM, fill=tk.X)
+    toolbar1 = NavigationToolbar2Tk(canvas1, plot_window)
+    toolbar1.update()
+    toolbar1.pack(side=tk.TOP, fill=tk.X)
 
     # Plotting Cumulative Returns
     fig2, ax2 = plt.subplots(figsize=(12, 5))
@@ -89,8 +69,6 @@ def plot(plot_window):
     canvas2.draw()
     canvas2.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    # toolbar2 = NavigationToolbar2Tk(canvas2, plot_window)
-    # toolbar2.update()
-    # toolbar2.pack(side=tk.BOTTOM, fill=tk.X)
-
-    # plot_window.mainloop()
+    toolbar2 = NavigationToolbar2Tk(canvas2, plot_window)
+    toolbar2.update()
+    toolbar2.pack(side=tk.TOP, fill=tk.X)

@@ -1,12 +1,47 @@
 import numpy as np
 import pandas as pd
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 
+'''
+    The features used for training the SVM model are:
+    
+        'Open': The opening price of the stock.
+        'High': The highest price of the stock during the day.
+        'Low': The lowest price of the stock during the day.
+        'Close': The closing price of the stock.
+        'Adj Close': The adjusted closing price of the stock.
+        'Volume': The trading volume of the stock.
+    
+    The labels used for training are determined based on the next day's closing price. 
+    If the next day's closing price is higher than the current day's closing price, the label is set to 1 (indicating a positive or upward trend). 
+    Otherwise, the label is set to -1 (indicating a negative or downward trend).
+    
+    The SVM model is trained using the fit method, which takes the training features (X_train) and labels (y_train) as input. 
+    It tries to find the optimal hyperplane that maximally separates the data points of different classes in the feature space.
+    
+    The outcomes of the SVM model are predictions made on the test data (X_test) using the trained model. 
+    The predictions are obtained using the predict method, which takes the test features as input and returns the predicted labels. 
+    These predicted labels are stored in the y_pred variable.
+    
+    Additionally, the code calculates the accuracy of the predictions by comparing the predicted labels (y_pred) with the actual labels (y_test). 
+    The accuracy score is calculated using the accuracy_score function from the sklearn.metrics module.
+    
+    The SVM model is also used to make predictions on the full dataset (X). 
+    The predictions are stored in the y_pred_all variable, and based on these predictions, the performance of the stock is determined as either "Performing well" or "Performing poorly" for each data point. 
+    The overall performance is then determined based on the proportion of data points classified as "Performing well" compared to the total number of data points. 
+    If the proportion is greater than or equal to 0.5, the SVM is considered to be performing well; otherwise, it is considered to be performing poorly. 
+    The function returns either 1 or 0 based on this determination.
 
+'''
+
+x_test, y_test, clf = None, None, None
 def svm_pred(dataset):
+    global X_test, y_test, clf
     # Load data from CSV file
     data = pd.read_csv(dataset)
 
@@ -66,3 +101,57 @@ def svm_pred(dataset):
     else:
         print('SVM: Performing poorly. \n')
         return 0
+
+
+def plot(plot_window):
+    # TODO: I guess blue = positive trend and red = negative trend
+    global X_test, y_test, clf
+    fig, ax = plt.subplots(figsize=(12, 5))
+    colors = ['blue' if label == 1 else 'red' for label in y_test]
+    ax.scatter(X_test.iloc[:, 0], X_test.iloc[:, 1], c=colors)
+    ax.set_xlabel('Open')
+    ax.set_ylabel('High')
+    ax.set_title('Stock Trend Classification')
+
+    # Plot decision boundary
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    xx, yy = np.meshgrid(np.linspace(*xlim, num=200), np.linspace(*ylim, num=200))
+    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel(), np.zeros_like(xx.ravel()), np.zeros_like(
+        xx.ravel()), np.zeros_like(xx.ravel()), np.zeros_like(xx.ravel())])
+    Z = Z.reshape(xx.shape)
+    ax.contour(xx, yy, Z, levels=[0], colors='k')
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+
+    canvas = FigureCanvasTkAgg(fig, master=plot_window)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    toolbar = NavigationToolbar2Tk(canvas, plot_window)
+    toolbar.update()
+    toolbar.pack(side=tk.TOP, fill=tk.X)
+
+# def plot(plot_window):
+#     global X_test, y_test, clf
+#     fig, ax = plt.subplots(figsize=(12, 5))
+#     ax.scatter(X_test.iloc[:, 0], X_test.iloc[:, 1], c=y_test)
+#     ax.set_xlabel('Open')
+#     ax.set_ylabel('High')
+#     ax.set_title('Stock Performance Classification')
+#     xlim = ax.get_xlim()
+#     ylim = ax.get_ylim()
+#     xx, yy = np.meshgrid(np.linspace(*xlim, num=200), np.linspace(*ylim, num=200))
+#     Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel(), np.zeros_like(xx.ravel()), np.zeros_like(xx.ravel()), np.zeros_like(xx.ravel()), np.zeros_like(xx.ravel())])
+#     Z = Z.reshape(xx.shape)
+#     ax.contour(xx, yy, Z, levels=[0], colors='k')
+#     ax.set_xlim(xlim)
+#     ax.set_ylim(ylim)
+#
+#     canvas = FigureCanvasTkAgg(fig, master=plot_window)
+#     canvas.draw()
+#     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+#
+#     toolbar = NavigationToolbar2Tk(canvas, plot_window)
+#     toolbar.update()
+#     toolbar.pack(side=tk.TOP, fill=tk.X)

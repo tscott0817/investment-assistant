@@ -92,15 +92,11 @@ def plot(plot_window):
     global data_csv
     global X
     global Y
-    # Create  new window for the plots to display in
+
     poly_degree_values = [2, 3, 4, 6, 8]
     plot_colors = ['red', 'blue', 'green', 'orange', 'purple']
 
-    # fig, ax = plt.subplots()  # Create Figure and Axes objects
-    # TODO: Make relative to window size, not hardcoded
     fig, ax = plt.subplots()
-    # fig, ax = plt.subplots(figsize=(6, 3))  # Create Figure and Axes objects
-    # fig, ax = plt.subplots(figsize=(main_window.winfo_screenwidth() * 0.5, 6))  # Adjust the height as needed
 
     for i, degree in enumerate(poly_degree_values):
         y_pred, model_coef = nonlinear_regression_elastic(X, Y, degree=degree, alpha=2, l1_ratio=0.9)
@@ -122,22 +118,10 @@ def plot(plot_window):
 
     fig.subplots_adjust(bottom=0.25)  # Adjust the bottom margin as needed
 
-    # creating the Tkinter canvas
-    # containing the Matplotlib figure
     canvas = FigureCanvasTkAgg(fig, master=plot_window)
-    # canvas.get_tk_widget().config(width=plot_window.winfo_width(), height=plot_window.winfo_height())
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     canvas.draw()
 
-
-
-    # toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
-    # toolbar.pack(side=tk.BOTTOM, fill=tk.X)
-    # toolbar.update()
-
-    # toolbar.pack(side=tk.BOTTOM, fill=tk.X)
-    # plot_window.resizable(True, True)
-    # plot_window.update()
-    # placing the toolbar on the Tkinter window
-    # canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-    #canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)
+    toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
+    toolbar.pack(side=tk.TOP, fill=tk.X)
+    toolbar.update()

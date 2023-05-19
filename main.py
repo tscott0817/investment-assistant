@@ -32,7 +32,6 @@ def main():
 
     # Window
     global main_window
-    # width = main_window.winfo_screenwidth()
     main_window = tk.Tk()
     main_window.title("Investment Assistant")
     # main_window.geometry("1920x1080")
@@ -63,10 +62,6 @@ def main():
     color_search = "#729adb"
     color_search_light = "#e6e7e8"
     color_search_dark = "#141414"
-    # Change color_search to a rgb tuple
-    # color_search = (114, 154, 219)
-    # Check for stable connection
-    connection_text = " "
     if not check_connection():
         # End mainloop
         connection_text = "No internet. A stable connection is required to access yahoo finance."
@@ -76,21 +71,9 @@ def main():
 
     # TODO: Put here until mainloop() in own function to mimic "while running" and put init vars outside of it
     # Create a label
-    # main_window.wm_attributes('-transparentcolor', 'white')
     label_main = ttk.Label(main_window, text=connection_text)
-    # Center the label
     label_main.pack(side="bottom", fill="both")
-    # Change the label background color
     label_main.configure(background="#c4c4c4")
-
-    # # Create a canvas that hold the entry_stock, entry_sd, entry_ed, and button
-    # canvas_main = tk.Canvas(main_window, width=window_width * .5,
-    #                    height=window_height, bg=main_window.cget("bg"), highlightthickness=0)
-    # # canvas_main = tk.Canvas(main_window, width=window_width * .5,
-    # #                    height=window_height, bg=color_search_dark)
-    # canvas_main.pack(side="left", fill="both")
-    #
-    # canvas_main.update()
 
     # Make the canvas into a frame
     frame_main = tk.Frame(main_window, width=window_width * .5, height=window_height, bg=main_window.cget("bg"))
@@ -129,7 +112,6 @@ def main():
         # Use a label instead of a text box for under the button
         loading_text = str(percentage_global) + "% confident level that " + entry_stock.get() + " will continue to perform well."
         label = ttk.Label(frame_main, text=loading_text)
-        # label.pack(side="top", fill="both", padx=20, pady=10, ipadx=80, ipady=80)
         label.pack(side="top", fill="both", padx=20, pady=10)
         label.configure(background="red")
         label.update()
@@ -141,20 +123,18 @@ def main():
 
 
     # TODO: Move somewhere else
-    style = ttk.Style(main_window)
     # Using the built-in themes:
-    #
     #     Available on all platform: alt, clam, classic, default
-    #
     #     Windows: vista, winnative, xpnative
-    #
     #     Mac: aqua
 
+    # style = ttk.Style(main_window)
     # style.theme_use("clam")
     # style.configure("run_button.TButton", font=("Arial", 14))
 
     # Set theme
     # sv_ttk.set_theme("light")
+
     # Set the initial theme
     main_window.tk.call("source", "azure.tcl")
     main_window.tk.call("set_theme", "light")
@@ -186,7 +166,6 @@ def main():
 '''
 def check_connection():
     # initializing URL
-    # url = "https://www.google.com"  # Just to test connection
     url = "https://finance.yahoo.com"
     timeout = 10
     try:
@@ -198,6 +177,8 @@ def check_connection():
     except (requests.ConnectionError, requests.Timeout) as exception:
         print("Internet is off")
         return False
+
+plots_frame = None
 def plot_draw():
     global plot_window
     plot_window = tk.Toplevel()
@@ -205,7 +186,48 @@ def plot_draw():
     plot_window.geometry("800x600")
     plot_window.configure(bg="white")
     plot_window.resizable(True, True)
+    plot_window.rowconfigure(0, weight=1)
+    plot_window.columnconfigure(0, weight=1)
     plot_window.update()
+
+    # Create a frame to hold the canvas and scrollbar
+    frame = ttk.Frame(plot_window)
+    # frame.pack(fill=tk.BOTH, expand=True)
+    frame.grid(row=0, column=0, sticky=tk.NSEW)
+
+    # Create a canvas for the plots
+    canvas = tk.Canvas(frame)
+    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    # Create a scrollbar
+    scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Configure the canvas to use the scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+
+    # Create a frame to hold the plots
+    global plots_frame
+    plots_frame = ttk.Frame(canvas)
+
+    # Add the plots frame to the canvas
+    canvas.create_window((0, 0), window=plots_frame, anchor=tk.NW)
+
+    # Adjust the height of the plots frame to fit all the plots
+    plots_frame.update_idletasks()
+    canvas.update_idletasks()
+    canvas.config(scrollregion=canvas.bbox('all'))
+
+    # Add the canvas and scrollbar to the main window
+    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    def on_window_resize(event):
+        # canvas.itemconfig(1, width=event.width)
+        canvas.itemconfig(1, width=canvas.winfo_width())
+
+    plot_window.bind("<Configure>", on_window_resize)
 
 
 stock_data_list = []  # Holds the .csv data for each searched stock
@@ -265,19 +287,17 @@ def run_search(stock, start_date, end_date):
                 - The collection of the models predictions will be used to determine the final confidence level for investment
         '''
         global plot_window
-        # Create a scrolled text widget to hold the plots
-        # text_widget = scrolledtext.ScrolledText(plot_window, width=100, height=30)
-        # text_widget.pack(fill=tk.BOTH, expand=True)
-
         # Call the plots
         regression_result = regression.regression_pred(stock_data)  # Pass the csv file to objects
         print("hi_lo_result: ", regression_result)
-        regression.plot(plot_window)
+        regression.plot(plots_frame)
         # text_widget.insert(tk.END, '\n')  # Add a newline to separate the plots
         macd_result = macd.macd_pred(stock_data)
         print("macd_result: ", macd_result)
-        macd.plot(plot_window)
-        # svm_result = svm.svm_pred(stock_data)
+        macd.plot(plots_frame)
+        svm_result = svm.svm_pred(stock_data)
+        print("svm_result: ", svm_result)
+        svm.plot(plots_frame)
         # random_forest.random_forest_pred(stock_data)
         # arima_result = arima.arima_pred(stock_data)
         # garch_result = garch.garch_pred(stock_data)
