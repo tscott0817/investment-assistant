@@ -1,8 +1,11 @@
 import pandas as pd
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
 
-
+df = None
 def macd_pred(csv_file_path):
+    global df
     # Read in the CSV file
     df = pd.read_csv(csv_file_path)
 
@@ -52,3 +55,42 @@ def macd_pred(csv_file_path):
     # plt.show()
 
     return decision
+
+
+def plot(plot_window):
+    global df
+
+    # Create a new window for the plots to display in
+    # plot_window = tk.Toplevel()
+    # plot_window.title('Plot Window')
+
+    # Plotting MACD and Signal line
+    fig1, ax1 = plt.subplots(figsize=(12, 5))
+    ax1.plot(df['MACD'], label='MACD', color='red')
+    ax1.plot(df['Signal'], label='Signal Line', color='blue')
+    ax1.set_title('MACD and Signal Line')
+    ax1.legend(loc='upper left')
+
+    canvas1 = FigureCanvasTkAgg(fig1, master=plot_window)
+    canvas1.draw()
+    canvas1.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    # toolbar1 = NavigationToolbar2Tk(canvas1, plot_window)
+    # toolbar1.update()
+    # toolbar1.pack(side=tk.BOTTOM, fill=tk.X)
+
+    # Plotting Cumulative Returns
+    fig2, ax2 = plt.subplots(figsize=(12, 5))
+    ax2.plot(df['Cumulative_Returns'], label='Cumulative Returns', color='green')
+    ax2.set_title('Cumulative Returns')
+    ax2.legend(loc='upper left')
+
+    canvas2 = FigureCanvasTkAgg(fig2, master=plot_window)
+    canvas2.draw()
+    canvas2.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    # toolbar2 = NavigationToolbar2Tk(canvas2, plot_window)
+    # toolbar2.update()
+    # toolbar2.pack(side=tk.BOTTOM, fill=tk.X)
+
+    # plot_window.mainloop()

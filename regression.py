@@ -98,7 +98,8 @@ def plot(plot_window):
 
     # fig, ax = plt.subplots()  # Create Figure and Axes objects
     # TODO: Make relative to window size, not hardcoded
-    fig, ax = plt.subplots(figsize=(6, 3))  # Create Figure and Axes objects
+    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots(figsize=(6, 3))  # Create Figure and Axes objects
     # fig, ax = plt.subplots(figsize=(main_window.winfo_screenwidth() * 0.5, 6))  # Adjust the height as needed
 
     for i, degree in enumerate(poly_degree_values):
@@ -119,22 +120,24 @@ def plot(plot_window):
     for tick in ax.get_xticklabels():
         tick.set_rotation(45)
 
+    fig.subplots_adjust(bottom=0.25)  # Adjust the bottom margin as needed
+
     # creating the Tkinter canvas
     # containing the Matplotlib figure
     canvas = FigureCanvasTkAgg(fig, master=plot_window)
-    # canvas.draw()
-    # canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-    # Change size of canvas
-    #canvas.get_tk_widget().config(width=plot_window.winfo_screenwidth(), height=plot_window.winfo_screenheight())
+    # canvas.get_tk_widget().config(width=plot_window.winfo_width(), height=plot_window.winfo_height())
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     canvas.draw()
 
 
-    # creating the Matplotlib toolbar
-    # change toolbar to use the grid layout manager
-    toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
-    toolbar.update()
 
+    # toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
+    # toolbar.pack(side=tk.BOTTOM, fill=tk.X)
+    # toolbar.update()
+
+    # toolbar.pack(side=tk.BOTTOM, fill=tk.X)
+    # plot_window.resizable(True, True)
+    # plot_window.update()
     # placing the toolbar on the Tkinter window
     # canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)
+    #canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)
