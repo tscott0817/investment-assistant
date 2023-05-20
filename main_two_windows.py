@@ -28,7 +28,6 @@ ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Must be >= Windows 8.1
 main_window = None
 plot_window = None
 plot_drawn = False
-frame_main = None
 def main():
 
     # Window
@@ -41,10 +40,10 @@ def main():
     # main_window.geometry("500x500")
     # main_window.geometry("800x600")  # Apparently is the default min size for Windows apps?
     main_window.configure(bg="white")
-    # main_window.resizable(False, False)
+    main_window.resizable(False, False)
 
-    w = 1280  # width for the Tk root
-    h = 720  # height for the Tk root
+    w = 800  # width for the Tk root
+    h = 600  # height for the Tk root
 
     # get screen width and height
     ws = main_window.winfo_screenwidth()  # width of the screen
@@ -92,14 +91,8 @@ def main():
     label_main.configure(background="#c4c4c4")
 
     # Make the canvas into a frame
-    global frame_main
-    frame_main = tk.Frame(main_window, width=window_width * .05, height=window_height, bg=main_window.cget("bg"))
-    # frame_main = tk.Frame(main_window, width=window_width * .05, height=window_height, bg="red")
-    # frame_main.pack(side="left", fill="both", expand=True)
+    frame_main = tk.Frame(main_window, width=window_width * .5, height=window_height, bg=main_window.cget("bg"))
     frame_main.pack(side="left", fill="both")
-    # Make the frame half the canvas width
-
-    frame_main.pack(side="left")
     frame_main.update()
 
     cl_width = frame_main.winfo_width()
@@ -201,19 +194,36 @@ def check_connection():
         return False
 
 plots_frame = None
-
 def plot_draw():
-    global plots_frame
+    global plot_window
+    plot_window = tk.Toplevel()
+    plot_window.title("Plots")
+    # plot_window.geometry("960x540")
+    plot_window.configure(bg="white")
+    plot_window.resizable(True, True)
+    plot_window.rowconfigure(0, weight=1)
+    plot_window.columnconfigure(0, weight=1)
+    w = 960  # width for the Tk root
+    h = 540  # height for the Tk root
+
+    # get screen width and height
+    ws = plot_window.winfo_screenwidth()  # width of the screen
+    hs = plot_window.winfo_screenheight()  # height of the screen
+
+    # calculate x and y coordinates for the Tk root window
+    x = (ws / 2) - (w / 2)
+    y = (hs / 2) - (h / 2)
+
+    # set the dimensions of the screen
+    # and where it is placed
+    plot_window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+    plot_window.update()
 
     # Create a frame to hold the canvas and scrollbar
-    frame = ttk.Frame(main_window)
-    frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+    frame = ttk.Frame(plot_window)
+    # frame.pack(fill=tk.BOTH, expand=True)
+    frame.grid(row=0, column=0, sticky=tk.NSEW)
 
-    # Calculate the width for the frame
-    frame_width = int(main_window.winfo_width() / 2)
-
-    # Configure the frame width
-    frame.config(width=frame_width)
 
     # Create a canvas for the plots
     canvas = tk.Canvas(frame)
@@ -231,12 +241,23 @@ def plot_draw():
     canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
 
     # Create a frame to hold the plots
+    global plots_frame
     plots_frame = ttk.Frame(canvas)
 
     # Add the plots frame to the canvas
     canvas.create_window((0, 0), window=plots_frame, anchor=tk.NW)
 
+    # Adjust the height of the plots frame to fit all the plots
+    plots_frame.update_idletasks()
+    canvas.update_idletasks()
+    canvas.config(scrollregion=canvas.bbox('all'), highlightthickness=0)
+
+    # Add the canvas and scrollbar to the main window
+    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
     def on_window_resize(event):
+        # canvas.itemconfig(1, width=event.width)
         canvas.itemconfig(1, width=canvas.winfo_width())
 
     def configure_scrollbar():
@@ -247,70 +268,8 @@ def plot_draw():
         else:
             scrollbar.pack_forget()
 
-    main_window.bind("<Configure>", on_window_resize)
-    main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
-
-
-# plots_frame = None
-# def plot_draw():
-#     # Create a frame to hold the canvas and scrollbar
-#     # frame = ttk.Frame(plot_window)
-#     global frame_main
-#     global main_window
-#     frame = ttk.Frame(main_window)
-#     # make the frame half the width of the window
-#     # and full height, pack()
-#     frame.pack(side=tk.RIGHT, fill=tk.BOTH)
-#     # frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-#     # frame.grid(row=0, column=0, sticky=tk.NSEW)
-#
-#
-#     # Create a canvas for the plots
-#     canvas = tk.Canvas(frame)
-#     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-#
-#     # Create a scrollbar
-#     scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
-#     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-#
-#     # Configure the canvas to use the scrollbar
-#     canvas.configure(yscrollcommand=scrollbar.set)
-#     canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
-#
-#     # Enable mouse wheel scrolling
-#     canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
-#
-#     # Create a frame to hold the plots
-#     global plots_frame
-#     plots_frame = ttk.Frame(canvas)
-#
-#     # Add the plots frame to the canvas
-#     canvas.create_window((0, 0), window=plots_frame, anchor=tk.NW)
-#
-#     # Adjust the height of the plots frame to fit all the plots
-#     plots_frame.update_idletasks()
-#     canvas.update_idletasks()
-#     canvas.config(scrollregion=canvas.bbox('all'), highlightthickness=0)
-#
-#     # Add the canvas and scrollbar to the main window
-#     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-#     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-#
-#     def on_window_resize(event):
-#         # canvas.itemconfig(1, width=event.width)
-#         canvas.itemconfig(1, width=canvas.winfo_width())
-#
-#     def configure_scrollbar():
-#         canvas.update_idletasks()
-#         canvas.config(scrollregion=canvas.bbox('all'))
-#         if plots_frame.winfo_reqheight() > canvas.winfo_height():
-#             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-#         else:
-#             scrollbar.pack_forget()
-#
-#     # plot_window.bind("<Configure>", on_window_resize)
-#     # plot_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
-#     frame_main.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
+    plot_window.bind("<Configure>", on_window_resize)
+    plot_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
 
 stock_data_list = []  # Holds the .csv data for each searched stock
 plot_list = []
@@ -368,7 +327,7 @@ def run_search(stock, start_date, end_date):
                 - Each returns a classification or 'good' or 'poor' performance as a '0' or '1'
                 - The collection of the models predictions will be used to determine the final confidence level for investment
         '''
-        # global plot_window
+        global plot_window
         # Call the plots
         regression_result = regression.regression_pred(stock_data)  # Pass the csv file to objects
         print("hi_lo_result: ", regression_result)
@@ -380,15 +339,15 @@ def run_search(stock, start_date, end_date):
         svm_result = svm.svm_pred(stock_data)
         print("svm_result: ", svm_result)
         svm.plot(plots_frame)
-        # random_forest.random_forest_pred(stock_data)
-        # print("random_forest_result: ", random_forest.random_forest_pred(stock_data))
-        # random_forest.plot(plots_frame)
-        # arima_result = arima.arima_pred(stock_data)
-        # print("arima_result: ", arima_result)
-        # arima.plot(plots_frame)
-        # garch_result = garch.garch_pred(stock_data)
-        # print("garch_result: ", garch_result)
-        # garch.plot(plots_frame)
+        random_forest.random_forest_pred(stock_data)
+        print("random_forest_result: ", random_forest.random_forest_pred(stock_data))
+        random_forest.plot(plots_frame)
+        arima_result = arima.arima_pred(stock_data)
+        print("arima_result: ", arima_result)
+        arima.plot(plots_frame)
+        garch_result = garch.garch_pred(stock_data)
+        print("garch_result: ", garch_result)
+        garch.plot(plots_frame)
         # investor_analysis_result = investor_analysis.get_recommendations(stock)
         # print("investor_analysis_result: ", investor_analysis_result)
         # investor_analysis.plot(plots_frame)
