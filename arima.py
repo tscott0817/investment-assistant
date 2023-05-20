@@ -2,6 +2,8 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima.model import ARIMA
@@ -24,7 +26,9 @@ def test_stationarity(timeseries):
     return adft[0:4], rolmean, rolstd
 
 
+train_data_original_scale, test_data_original_scale, fc_series = None, None, None
 def arima_pred(dataset_path):
+    global train_data_original_scale, test_data_original_scale, fc_series
     # Read the data from the CSV file
     tsla_data = pd.read_csv(dataset_path)
 
@@ -83,17 +87,6 @@ def arima_pred(dataset_path):
     rmse = math.sqrt(mean_squared_error(test_data_original_scale, fc_series))
     mape = np.mean(np.abs(fc_series - test_data_original_scale) / np.abs(test_data_original_scale))
 
-    # # Visualizing the original and forecasted time series
-    # plt.figure(figsize=(12, 5), dpi=100)
-    # plt.plot(train_data_original_scale, label='training')
-    # plt.plot(test_data_original_scale, color='blue', label='Actual Stock Price')
-    # plt.plot(fc_series, color='orange', label='Predicted Stock Price')
-    # plt.title('ARIMA Stock Price Prediction')
-    # plt.xlabel('Time')
-    # plt.ylabel('Actual Stock Price')
-    # plt.legend(loc='upper left', fontsize=8)
-    # plt.show()
-
     print(f'MSE: {mse}')
     print(f'MAE: {mae}')
     print(f'RMSE: {rmse}')
@@ -108,3 +101,35 @@ def arima_pred(dataset_path):
         return 0
 
 
+def plot(plot_window):
+    global train_data_original_scale, test_data_original_scale, fc_series
+    # Visualizing the original and forecasted time series
+    fig, ax = plt.subplots(figsize=(12, 5), dpi=100)
+    ax.plot(train_data_original_scale, label='training')
+    ax.plot(test_data_original_scale, color='blue', label='Actual Stock Price')
+    ax.plot(fc_series, color='orange', label='Predicted Stock Price')
+    ax.set_title('ARIMA Stock Price Prediction')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Actual Stock Price')
+    ax.legend(loc='upper left', fontsize=8)
+
+    canvas = FigureCanvasTkAgg(fig, master=plot_window)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    toolbar = NavigationToolbar2Tk(canvas, plot_window)
+    toolbar.update()
+    toolbar.pack(side=tk.TOP, fill=tk.X)
+
+# def plot(plot_window):
+#     global train_data_original_scale, test_data_original_scale, fc_series
+#     # Visualizing the original and forecasted time series
+#     plt.figure(figsize=(12, 5), dpi=100)
+#     plt.plot(train_data_original_scale, label='training')
+#     plt.plot(test_data_original_scale, color='blue', label='Actual Stock Price')
+#     plt.plot(fc_series, color='orange', label='Predicted Stock Price')
+#     plt.title('ARIMA Stock Price Prediction')
+#     plt.xlabel('Time')
+#     plt.ylabel('Actual Stock Price')
+#     plt.legend(loc='upper left', fontsize=8)
+#     plt.show()

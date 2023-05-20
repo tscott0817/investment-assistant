@@ -2,10 +2,14 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
 
 
+test_y, test_predict_rf = None, None
 def random_forest_pred(stock_data_filename):
+    global test_y, test_predict_rf
     # Read the CSV file into a DataFrame
     stock_data = pd.read_csv(stock_data_filename)
 
@@ -63,3 +67,58 @@ def random_forest_pred(stock_data_filename):
     else:
         print("Random Forest Accuracy: Performing Poorly.\n")
         return 0
+
+
+def plot(plot_window):
+    global test_y, test_predict_rf
+
+    # Calculate the absolute error between actual and predicted values
+    error = abs(test_y - test_predict_rf)
+
+    # Create a figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+    # Plot actual vs predicted values
+    ax1.plot(test_y.index, test_y, label='Actual')
+    ax1.plot(test_y.index, test_predict_rf, label='Predicted')
+    ax1.set_title('(Random Forest Model) Actual vs Predicted Values')
+    ax1.legend()
+
+    # Plot the absolute error
+    ax2.plot(test_y.index, error, color='red')
+    ax2.set_title('Absolute Error')
+
+    # Create a canvas and draw the figure on it
+    canvas = FigureCanvasTkAgg(fig, master=plot_window)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    # Create a toolbar and pack it into the window
+    toolbar = NavigationToolbar2Tk(canvas, plot_window)
+    toolbar.update()
+    toolbar.pack(side=tk.TOP, fill=tk.X)
+
+
+# def plot(plot_window):
+#     global test_y, test_predict_rf
+#
+#     # Plot actual vs predicted
+#     fig, ax = plt.subplots()
+#     ax.plot(test_y.index, test_y, label='Actual')
+#     ax.plot(test_y.index, test_predict_rf, label='Predicted')
+#     ax.set_title('(Random Forest Model) Actual vs Predicted Values')
+#     ax.legend()
+#
+#     # # Create a Tkinter window
+#     # plot_window = tk.Tk()
+#     # plot_window.title('Plot Window')
+#
+#     # Create a canvas and draw the figure on it
+#     canvas = FigureCanvasTkAgg(fig, master=plot_window)
+#     canvas.draw()
+#     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+#
+#     # Create a toolbar and pack it into the window
+#     toolbar = NavigationToolbar2Tk(canvas, plot_window)
+#     toolbar.update()
+#     toolbar.pack(side=tk.TOP, fill=tk.X)

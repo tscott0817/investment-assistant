@@ -3,8 +3,12 @@ import json
 import requests
 import matplotlib.pyplot as plt
 
-
+dataframe = None
 def get_recommendations(ticker):
+    global dataframe
+
+    # Allow the ticker to be accessed globally
+
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:97.0) Gecko/20100101 Firefox/97.0'
@@ -53,9 +57,9 @@ def get_recommendations(ticker):
     dataframe = dataframe.set_index('Period')
     # print(dataframe)
 
-    ax = dataframe.plot.bar(rot=0)
-    ax.set_title(f'({ticker}) Investors Recommendation Trends')
-    ax.set_ylabel('Investors Recommendation Counts')
+    # ax = dataframe.plot.bar(rot=0)
+    # ax.set_title(f'({ticker}) Investors Recommendation Trends')
+    # ax.set_ylabel('Investors Recommendation Counts')
     # plt.show()
 
     # classify overall recommendation trend
@@ -68,3 +72,11 @@ def get_recommendations(ticker):
     else:
         print(f"({ticker}) is performing poorly based on investors recommendation trends.")
         return 0
+
+
+def plot(plot_window):
+    global dataframe, ticker
+    ax = dataframe.plot.bar(rot=0)
+    ax.set_title(f'({ticker}) Investors Recommendation Trends')
+    ax.set_ylabel('Investors Recommendation Counts')
+    plt.show()

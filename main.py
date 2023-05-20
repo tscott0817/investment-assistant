@@ -38,9 +38,24 @@ def main():
     # main_window.geometry("1280x720")
     # main_window.geometry("960x540")
     # main_window.geometry("500x500")
-    main_window.geometry("800x600")  # Apparently is the default min size for Windows apps
+    # main_window.geometry("800x600")  # Apparently is the default min size for Windows apps
     main_window.configure(bg="white")
     main_window.resizable(False, False)
+
+    w = 800  # width for the Tk root
+    h = 600  # height for the Tk root
+
+    # get screen width and height
+    ws = main_window.winfo_screenwidth()  # width of the screen
+    hs = main_window.winfo_screenheight()  # height of the screen
+
+    # calculate x and y coordinates for the Tk root window
+    x = (ws / 4) - (w / 2)
+    y = (hs / 2) - (h / 2)
+
+    # set the dimensions of the screen
+    # and where it is placed
+    main_window.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     # TODO: Put in own function
     screen_dpi = main_window.winfo_fpixels('1i')
@@ -183,17 +198,32 @@ def plot_draw():
     global plot_window
     plot_window = tk.Toplevel()
     plot_window.title("Plots")
-    plot_window.geometry("800x600")
+    # plot_window.geometry("960x540")
     plot_window.configure(bg="white")
     plot_window.resizable(True, True)
     plot_window.rowconfigure(0, weight=1)
     plot_window.columnconfigure(0, weight=1)
+    w = 960  # width for the Tk root
+    h = 540  # height for the Tk root
+
+    # get screen width and height
+    ws = plot_window.winfo_screenwidth()  # width of the screen
+    hs = plot_window.winfo_screenheight()  # height of the screen
+
+    # calculate x and y coordinates for the Tk root window
+    x = (ws / 2) - (w / 2)
+    y = (hs / 2) - (h / 2)
+
+    # set the dimensions of the screen
+    # and where it is placed
+    plot_window.geometry('%dx%d+%d+%d' % (w, h, x, y))
     plot_window.update()
 
     # Create a frame to hold the canvas and scrollbar
     frame = ttk.Frame(plot_window)
     # frame.pack(fill=tk.BOTH, expand=True)
     frame.grid(row=0, column=0, sticky=tk.NSEW)
+
 
     # Create a canvas for the plots
     canvas = tk.Canvas(frame)
@@ -207,6 +237,9 @@ def plot_draw():
     canvas.configure(yscrollcommand=scrollbar.set)
     canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
 
+    # Enable mouse wheel scrolling
+    canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
+
     # Create a frame to hold the plots
     global plots_frame
     plots_frame = ttk.Frame(canvas)
@@ -217,7 +250,7 @@ def plot_draw():
     # Adjust the height of the plots frame to fit all the plots
     plots_frame.update_idletasks()
     canvas.update_idletasks()
-    canvas.config(scrollregion=canvas.bbox('all'))
+    canvas.config(scrollregion=canvas.bbox('all'), highlightthickness=0)
 
     # Add the canvas and scrollbar to the main window
     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -227,8 +260,16 @@ def plot_draw():
         # canvas.itemconfig(1, width=event.width)
         canvas.itemconfig(1, width=canvas.winfo_width())
 
-    plot_window.bind("<Configure>", on_window_resize)
+    def configure_scrollbar():
+        canvas.update_idletasks()
+        canvas.config(scrollregion=canvas.bbox('all'))
+        if plots_frame.winfo_reqheight() > canvas.winfo_height():
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        else:
+            scrollbar.pack_forget()
 
+    plot_window.bind("<Configure>", on_window_resize)
+    plot_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
 
 stock_data_list = []  # Holds the .csv data for each searched stock
 plot_list = []
@@ -298,10 +339,18 @@ def run_search(stock, start_date, end_date):
         svm_result = svm.svm_pred(stock_data)
         print("svm_result: ", svm_result)
         svm.plot(plots_frame)
-        # random_forest.random_forest_pred(stock_data)
-        # arima_result = arima.arima_pred(stock_data)
-        # garch_result = garch.garch_pred(stock_data)
+        random_forest.random_forest_pred(stock_data)
+        print("random_forest_result: ", random_forest.random_forest_pred(stock_data))
+        random_forest.plot(plots_frame)
+        arima_result = arima.arima_pred(stock_data)
+        print("arima_result: ", arima_result)
+        arima.plot(plots_frame)
+        garch_result = garch.garch_pred(stock_data)
+        print("garch_result: ", garch_result)
+        garch.plot(plots_frame)
         # investor_analysis_result = investor_analysis.get_recommendations(stock)
+        # print("investor_analysis_result: ", investor_analysis_result)
+        # investor_analysis.plot(plots_frame)
         # sentimentAnalysis.sentiment_analysis_subreddit(stock)
         # sentimentAnalysisPretrainedBert.sentiment_analysis(stock)
 
@@ -312,12 +361,10 @@ def run_search(stock, start_date, end_date):
 
 
         # TODO: This is really gross
-
-
         # # Add all results to list
         # results = [regression_result, macd_result, svm_result, arima_result, garch_result, investor_analysis_result]
         # # results = [regression_result, macd_result, svm_result]
-        results = [regression_result, macd_result]
+        results = [regression_result, macd_result, svm_result]
 
         num_ones = sum(result == 1 for result in results)
         num_zeros = sum(result == 0 for result in results)
