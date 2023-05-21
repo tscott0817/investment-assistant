@@ -51,7 +51,7 @@ def main():
     hs = main_window.winfo_screenheight()  # height of the screen
 
     # calculate x and y coordinates for the Tk root window
-    x = (ws / 4) - (w / 2)
+    x = (ws / 2) - (w / 2)
     y = (hs / 2) - (h / 2)
 
     # set the dimensions of the screen
@@ -139,9 +139,9 @@ def main():
         label.update()
 
     # All algorithms are run when this button is pressed.
-    button = ttk.Button(frame_main, text="Run Algorithms", width=20, style="run_button.TButton",
+    button = ttk.Button(frame_main, text="Analyze", width=20, style="run_button.TButton",
                         command=lambda: (plot_draw(), run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()), create_loding_label()))
-    button.pack(side="top", fill="both", padx=20, pady=10, ipadx=80, ipady=40)
+    button.pack(side="top", fill="both", padx=20, pady=10, ipadx=80, ipady=10)
 
 
     # TODO: Move somewhere else
@@ -210,7 +210,7 @@ def plot_draw():
     frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
     # Calculate the width for the frame
-    frame_width = int(main_window.winfo_width() / 2)
+    frame_width = int(main_window.winfo_width() / 4)
 
     # Configure the frame width
     frame.config(width=frame_width)
@@ -224,7 +224,7 @@ def plot_draw():
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     # Configure the canvas to use the scrollbar
-    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.configure(yscrollcommand=scrollbar.set, highlightthickness=0)
     canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
 
     # Enable mouse wheel scrolling
@@ -249,68 +249,6 @@ def plot_draw():
 
     main_window.bind("<Configure>", on_window_resize)
     main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
-
-
-# plots_frame = None
-# def plot_draw():
-#     # Create a frame to hold the canvas and scrollbar
-#     # frame = ttk.Frame(plot_window)
-#     global frame_main
-#     global main_window
-#     frame = ttk.Frame(main_window)
-#     # make the frame half the width of the window
-#     # and full height, pack()
-#     frame.pack(side=tk.RIGHT, fill=tk.BOTH)
-#     # frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-#     # frame.grid(row=0, column=0, sticky=tk.NSEW)
-#
-#
-#     # Create a canvas for the plots
-#     canvas = tk.Canvas(frame)
-#     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-#
-#     # Create a scrollbar
-#     scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
-#     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-#
-#     # Configure the canvas to use the scrollbar
-#     canvas.configure(yscrollcommand=scrollbar.set)
-#     canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
-#
-#     # Enable mouse wheel scrolling
-#     canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
-#
-#     # Create a frame to hold the plots
-#     global plots_frame
-#     plots_frame = ttk.Frame(canvas)
-#
-#     # Add the plots frame to the canvas
-#     canvas.create_window((0, 0), window=plots_frame, anchor=tk.NW)
-#
-#     # Adjust the height of the plots frame to fit all the plots
-#     plots_frame.update_idletasks()
-#     canvas.update_idletasks()
-#     canvas.config(scrollregion=canvas.bbox('all'), highlightthickness=0)
-#
-#     # Add the canvas and scrollbar to the main window
-#     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-#     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-#
-#     def on_window_resize(event):
-#         # canvas.itemconfig(1, width=event.width)
-#         canvas.itemconfig(1, width=canvas.winfo_width())
-#
-#     def configure_scrollbar():
-#         canvas.update_idletasks()
-#         canvas.config(scrollregion=canvas.bbox('all'))
-#         if plots_frame.winfo_reqheight() > canvas.winfo_height():
-#             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-#         else:
-#             scrollbar.pack_forget()
-#
-#     # plot_window.bind("<Configure>", on_window_resize)
-#     # plot_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
-#     frame_main.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
 
 stock_data_list = []  # Holds the .csv data for each searched stock
 plot_list = []

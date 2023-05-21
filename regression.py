@@ -12,7 +12,7 @@ import requests
 # GUI
 from tkinter import *
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 data = None
 data_csv = ""
@@ -96,7 +96,9 @@ def plot(plot_window):
     poly_degree_values = [2, 3, 4, 6, 8]
     plot_colors = ['red', 'blue', 'green', 'orange', 'purple']
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
+    fig = plt.figure(facecolor='violet')  # TODO: This should be method param for when the theme is changed
+    ax = fig.add_subplot(111, facecolor='yellow')
 
     for i, degree in enumerate(poly_degree_values):
         y_pred, model_coef = nonlinear_regression_elastic(X, Y, degree=degree, alpha=2, l1_ratio=0.9)
@@ -111,6 +113,9 @@ def plot(plot_window):
     ax.set_xlabel('Date')
     ax.set_ylabel('Average Daily Market Value')
     ax.legend(poly_degree_values)
+    # Setting the background color of the plot
+    # using set_facecolor() method
+    # ax.set_facecolor("yellow")
 
     # Change the x axis label to be horizontal
     for tick in ax.get_xticklabels():
@@ -122,6 +127,21 @@ def plot(plot_window):
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     canvas.draw()
 
+
     toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
-    toolbar.pack(side=tk.TOP, fill=tk.X)
+    # TODO: Invert colors of toolbar buttons
+    #   I think they are images, so loop try to loop through toolbar and grab children
+    #   Then invert the colors of each child image?
+
+    # Change the look of the toolbar to be like the older version with colored buttons
+
+
+    # for child in toolbar.winfo_children():
+    #     print(child)
+    #     # This is the button child .!frame2.!canvas.!frame.!navigationtoolbar2tk.!button
+    #     # Please invert the colors of this button
+    #     child.config(bg="black")
+    #     # Change the look of the buttons to be more visible
+
     toolbar.update()
+    toolbar.pack(side=tk.TOP, fill=tk.X)

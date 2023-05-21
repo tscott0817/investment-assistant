@@ -45,7 +45,10 @@ def macd_pred(csv_file_path):
 def plot(plot_window):
     global df
     # Plotting MACD and Signal line
-    fig1, ax1 = plt.subplots(figsize=(12, 5))
+    # fig1, ax1 = plt.subplots(figsize=(12, 5))
+    # fig, ax = plt.subplots()
+    fig1 = plt.figure(facecolor='violet')  # TODO: This should be method param for when the theme is changed
+    ax1 = fig1.add_subplot(111, facecolor='yellow')
     ax1.plot(df['MACD'], label='MACD', color='red')
     ax1.plot(df['Signal'], label='Signal Line', color='blue')
     ax1.set_title('MACD and Signal Line')
@@ -60,7 +63,10 @@ def plot(plot_window):
     toolbar1.pack(side=tk.TOP, fill=tk.X)
 
     # Plotting Cumulative Returns
-    fig2, ax2 = plt.subplots(figsize=(12, 5))
+    # fig2, ax2 = plt.subplots(figsize=(12, 5))
+    # fig, ax = plt.subplots()
+    fig2 = plt.figure(facecolor='violet')  # TODO: This should be method param for when the theme is changed
+    ax2 = fig2.add_subplot(111, facecolor='yellow')
     ax2.plot(df['Cumulative_Returns'], label='Cumulative Returns', color='green')
     ax2.set_title('Cumulative Returns')
     ax2.legend(loc='upper left')
