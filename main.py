@@ -1,7 +1,7 @@
 import os
 import time
 import yfinance as yf
-import regression
+import hi_lo
 import macd
 import svm
 import investor_analysis
@@ -11,6 +11,8 @@ import arima
 import garch
 import random_forest
 import requests
+import types
+import typing
 
 
 # GUI
@@ -41,37 +43,37 @@ def main():
     # main_window.geometry("500x500")
     # main_window.geometry("800x600")  # Apparently is the default min size for Windows apps?
     main_window.configure(bg="white")
-    # main_window.resizable(False, False)
+    main_window.resizable(True, True)
 
-    w = 1280  # width for the Tk root
-    h = 720  # height for the Tk root
+    width_main_window: int = 1280  # width for the Tk root
+    height_main_window: int = 720  # height for the Tk root
 
     # get screen width and height
-    ws = main_window.winfo_screenwidth()  # width of the screen
-    hs = main_window.winfo_screenheight()  # height of the screen
+    width_screen: int = main_window.winfo_screenwidth()  # width of the screen
+    height_screen: int = main_window.winfo_screenheight()  # height of the screen
 
     # calculate x and y coordinates for the Tk root window
-    x = (ws / 2) - (w / 2)
-    y = (hs / 2) - (h / 2)
+    pos_x: float = (width_screen / 2) - (width_main_window / 2)
+    pos_y: float = (height_screen / 2) - (height_main_window / 2)
 
     # set the dimensions of the screen
     # and where it is placed
-    main_window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+    main_window.geometry('%dx%d+%d+%d' % (width_main_window, height_main_window, pos_x, pos_y))
 
     # TODO: Put in own function
-    screen_dpi = main_window.winfo_fpixels('1i')
-    screen_width = main_window.winfo_screenwidth()
-    screen_height = main_window.winfo_screenheight()
-    print(f"Screen DPI: {screen_dpi}")
-    print(f"Screen Width: {screen_width}")
-    print(f"Screen Height: {screen_height}")
-    main_window.update()
-    window_dpi = main_window.winfo_fpixels('1i')
-    window_width = main_window.winfo_width()
-    window_height = main_window.winfo_height()
-    print(f"Window DPI: {window_dpi}")
-    print(f"Window Width: {window_width}")
-    print(f"Window Height: {window_height}")
+    # screen_dpi = main_window.winfo_fpixels('1i')
+    # screen_width = main_window.winfo_screenwidth()
+    # screen_height = main_window.winfo_screenheight()
+    # print(f"Screen DPI: {screen_dpi}")
+    # print(f"Screen Width: {screen_width}")
+    # print(f"Screen Height: {screen_height}")
+    # main_window.update()
+    # window_dpi = main_window.winfo_fpixels('1i')
+    # window_width = main_window.winfo_width()
+    # window_height = main_window.winfo_height()
+    # print(f"Window DPI: {window_dpi}")
+    # print(f"Window Width: {window_width}")
+    # print(f"Window Height: {window_height}")
 
     # TODO: Probably move out of main
     # Colors
@@ -93,7 +95,7 @@ def main():
 
     # Make the canvas into a frame
     global frame_main
-    frame_main = tk.Frame(main_window, width=window_width * .05, height=window_height, bg=main_window.cget("bg"))
+    frame_main = tk.Frame(main_window, width=width_main_window * .05, height=height_main_window, bg=main_window.cget("bg"))
     # frame_main = tk.Frame(main_window, width=window_width * .05, height=window_height, bg="red")
     # frame_main.pack(side="left", fill="both", expand=True)
     frame_main.pack(side="left", fill="both")
@@ -102,8 +104,8 @@ def main():
     frame_main.pack(side="left")
     frame_main.update()
 
-    cl_width = frame_main.winfo_width()
-    cl_height = frame_main.winfo_height()
+    cl_width: int = frame_main.winfo_width()
+    cl_height: int = frame_main.winfo_height()
     print(f"Canvas Size: {cl_width}x{cl_height}")
 
     # # Create an Entry widget to accept User Input
@@ -130,7 +132,7 @@ def main():
     entry_ed.focus_set()
     entry_ed.update()
 
-    def create_loding_label():
+    def create_loading_label():
         # Use a label instead of a text box for under the button
         loading_text = str(percentage_global) + "% confident level that " + entry_stock.get() + " will continue to perform well."
         label = ttk.Label(frame_main, text=loading_text)
@@ -140,7 +142,7 @@ def main():
 
     # All algorithms are run when this button is pressed.
     button = ttk.Button(frame_main, text="Analyze", width=20, style="run_button.TButton",
-                        command=lambda: (plot_draw(), run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()), create_loding_label()))
+                        command=lambda: (plot_draw(), run_search(entry_stock.get(), entry_sd.get(), entry_ed.get()), create_loading_label()))
     button.pack(side="top", fill="both", padx=20, pady=10, ipadx=80, ipady=10)
 
 
@@ -175,7 +177,6 @@ def main():
     button.pack(side="bottom", padx=20, pady=10)
     button.update()
 
-    main_window.resizable(True, True)
     main_window.mainloop()
 
     # Delete extra files when the program exits
@@ -183,13 +184,14 @@ def main():
     for s_data in stock_data_list:
         os.remove(s_data)
 
+
 '''
     Need internet connection to gather data from yahoo finance
 '''
 def check_connection():
     # initializing URL
-    url = "https://finance.yahoo.com"
-    timeout = 10
+    url: str = "https://finance.yahoo.com"
+    timeout: int = 10
     try:
         requests.get(url, timeout=timeout)
         print("Internet is on")
@@ -201,48 +203,61 @@ def check_connection():
         return False
 
 plots_frame = None
+frame_plot = None
+canvas_plot = None
+scrollbar_plot = None
 
 def plot_draw():
     global plots_frame
+    global frame_plot
+    global canvas_plot
+    global scrollbar_plot
 
-    # Create a frame to hold the canvas and scrollbar
-    frame = ttk.Frame(main_window)
-    frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+    # # Create a frame to hold the canvas and scrollbar
+    if plots_frame is not None:
+        plots_frame.destroy()
+        frame_plot.destroy()
+        canvas_plot.destroy()
+        # scrollbar_plot.destroy()
+
+    frame_plot = ttk.Frame(main_window)
+    frame_plot.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+    # Recreate the frame each time this function is called
 
     # Calculate the width for the frame
     frame_width = int(main_window.winfo_width() / 4)
 
     # Configure the frame width
-    frame.config(width=frame_width)
+    frame_plot.config(width=frame_width)
 
     # Create a canvas for the plots
-    canvas = tk.Canvas(frame)
-    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    canvas_plot = tk.Canvas(frame_plot)
+    canvas_plot.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     # Create a scrollbar
-    scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
+    scrollbar = ttk.Scrollbar(frame_plot, orient=tk.VERTICAL, command=canvas_plot.yview)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     # Configure the canvas to use the scrollbar
-    canvas.configure(yscrollcommand=scrollbar.set, highlightthickness=0)
-    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+    canvas_plot.configure(yscrollcommand=scrollbar.set, highlightthickness=0)
+    canvas_plot.bind('<Configure>', lambda e: canvas_plot.configure(scrollregion=canvas_plot.bbox('all')))
 
     # Enable mouse wheel scrolling
-    canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
+    canvas_plot.bind_all("<MouseWheel>", lambda e: canvas_plot.yview_scroll(int(-1 * (e.delta / 120)), "units"))
 
     # Create a frame to hold the plots
-    plots_frame = ttk.Frame(canvas)
+    plots_frame = ttk.Frame(canvas_plot)
 
     # Add the plots frame to the canvas
-    canvas.create_window((0, 0), window=plots_frame, anchor=tk.NW)
+    canvas_plot.create_window((0, 0), window=plots_frame, anchor=tk.NW)
 
     def on_window_resize(event):
-        canvas.itemconfig(1, width=canvas.winfo_width())
+        canvas_plot.itemconfig(1, width=canvas_plot.winfo_width())
 
     def configure_scrollbar():
-        canvas.update_idletasks()
-        canvas.config(scrollregion=canvas.bbox('all'))
-        if plots_frame.winfo_reqheight() > canvas.winfo_height():
+        canvas_plot.update_idletasks()
+        canvas_plot.config(scrollregion=canvas_plot.bbox('all'))
+        if plots_frame.winfo_reqheight() > canvas_plot.winfo_height():
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         else:
             scrollbar.pack_forget()
@@ -250,13 +265,19 @@ def plot_draw():
     main_window.bind("<Configure>", on_window_resize)
     main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
 
-stock_data_list = []  # Holds the .csv data for each searched stock
-plot_list = []
+
+
+# TODO: If I want to add loading text to each algo
+#   I need to separate each algo into its own function
+#   Call each sequentially as a callback in the button press lambda
+#   Then display the text in the main window when each algo starts and finishes.
+stock_data_list: list = []  # Holds the .csv data for each searched stock
+plot_list: list = []
 model_hi_lo = None
-percentage_global = 0
-hi_lo_text = ""
-macd_text = ""
-def run_search(stock, start_date, end_date):
+percentage_global: float = 0
+hi_lo_text: str = ""
+macd_text: str = ""
+def run_search(stock: str, start_date: str, end_date: str):
     '''
         Inits and User Input
     '''
@@ -308,9 +329,9 @@ def run_search(stock, start_date, end_date):
         '''
         # global plot_window
         # Call the plots
-        regression_result = regression.regression_pred(stock_data)  # Pass the csv file to objects
+        regression_result = hi_lo.regression_pred(stock_data)  # Pass the csv file to objects
         print("hi_lo_result: ", regression_result)
-        regression.plot(plots_frame)
+        hi_lo.plot(plots_frame)
         # text_widget.insert(tk.END, '\n')  # Add a newline to separate the plots
         macd_result = macd.macd_pred(stock_data)
         print("macd_result: ", macd_result)

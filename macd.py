@@ -42,6 +42,14 @@ def macd_pred(csv_file_path):
     return decision
 
 
+# MACD Line: The MACD line primarily indicates the overall momentum of the price movement.
+# When the MACD line is above the zero line, it suggests bullish momentum, indicating that the shorter-term EMA is above the longer-term EMA.
+# Conversely, when the MACD line is below the zero line, it indicates bearish momentum, implying that the shorter-term EMA is below the longer-term EMA.
+#
+# Signal Line: The signal line helps traders identify potential buy and sell signals based on the crossovers with the MACD line.
+# When the MACD line crosses above the signal line, it generates a bullish signal, suggesting a potential buying opportunity.
+# Conversely, when the MACD line crosses below the signal line, it generates a bearish signal, indicating a potential selling opportunity.
+
 def plot(plot_window):
     global df
     # Plotting MACD and Signal line
@@ -62,9 +70,6 @@ def plot(plot_window):
     toolbar1.update()
     toolbar1.pack(side=tk.TOP, fill=tk.X)
 
-    # Plotting Cumulative Returns
-    # fig2, ax2 = plt.subplots(figsize=(12, 5))
-    # fig, ax = plt.subplots()
     fig2 = plt.figure(facecolor='violet')  # TODO: This should be method param for when the theme is changed
     ax2 = fig2.add_subplot(111, facecolor='yellow')
     ax2.plot(df['Cumulative_Returns'], label='Cumulative Returns', color='green')

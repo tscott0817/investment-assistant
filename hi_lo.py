@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 data = None
-data_csv = ""
+data_csv: str = ""
 X = None
 Y = None
 def regression_pred(dataset):
@@ -59,12 +59,12 @@ def regression_pred(dataset):
     Classifying as "good" or "poor" performing stock
     '''
     # Get number of years by the difference between the last date and the first date
-    num_years = data['Date'].iloc[-1].year - data['Date'].iloc[0].year
+    num_years: int = data['Date'].iloc[-1].year - data['Date'].iloc[0].year
     recent_data = data.tail(252 * num_years)
 
     # Compute the year-over-year percentage change in closing prices for each year
     yearly_pct_change = recent_data['Close'].pct_change(periods=252).groupby(recent_data['Date'].dt.year).mean()
-    sum_pct_change = yearly_pct_change.sum()
+    sum_pct_change: float = yearly_pct_change.sum()
 
     print(f"{num_years} Year High/Low Analysis: ", sum_pct_change)
     # Classify the stock as "good" or "poor" performing based on the trend
@@ -133,15 +133,19 @@ def plot(plot_window):
     #   I think they are images, so loop try to loop through toolbar and grab children
     #   Then invert the colors of each child image?
 
-    # Change the look of the toolbar to be like the older version with colored buttons
-
-
     # for child in toolbar.winfo_children():
     #     print(child)
     #     # This is the button child .!frame2.!canvas.!frame.!navigationtoolbar2tk.!button
     #     # Please invert the colors of this button
     #     child.config(bg="black")
     #     # Change the look of the buttons to be more visible
+    #     child.config(relief=tk.RAISED, bd=2)
+    #     # Change the color of the button text
+    #     child.config(fg="white")
+    #     # Change the color of the button text
 
+    # Change button background color
+    toolbar.config(bg="#fcfcfc")
+    # Make toolbar bg same as window
     toolbar.update()
     toolbar.pack(side=tk.TOP, fill=tk.X)
