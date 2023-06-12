@@ -69,7 +69,7 @@ def random_forest_pred(stock_data_filename):
         return 0
 
 
-def plot(plot_window):
+def plot(plot_window, plot_bg_color):
     global test_y, test_predict_rf
 
     # Calculate the absolute error between actual and predicted values
@@ -77,6 +77,7 @@ def plot(plot_window):
 
     # Create a figure with two subplots
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    fig.patch.set_facecolor(plot_bg_color)
 
     # Plot actual vs predicted values
     ax1.plot(test_y.index, test_y, label='Actual')

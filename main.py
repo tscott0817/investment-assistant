@@ -4,15 +4,12 @@ import yfinance as yf
 import hi_lo
 import macd
 import svm
-import investor_analysis
-# import sentimentAnalysis
-# import sentimentAnalysisPretrainedBert
+# import investor_analysis
 import arima
 import garch
 import random_forest
 import requests
-import types
-import typing
+
 
 
 # GUI
@@ -31,6 +28,8 @@ main_window = None
 plot_window = None
 plot_drawn = False
 frame_main = None
+label = None
+bg_color: str = "#f2f2f2"
 def main():
 
     # Window
@@ -42,7 +41,8 @@ def main():
     # main_window.geometry("960x540")
     # main_window.geometry("500x500")
     # main_window.geometry("800x600")  # Apparently is the default min size for Windows apps?
-    main_window.configure(bg="white")
+    main_window.configure(bg=bg_color)
+    # main_window.attributes('-alpha', 0.5)
     main_window.resizable(True, True)
 
     width_main_window: int = 1280  # width for the Tk root
@@ -86,6 +86,15 @@ def main():
     else:
         connection_text = "Stable connection found."
 
+    # Put label in center right side of mainwindow
+    label_plot = ttk.Label(main_window, text="Plots Will Display Here", background=bg_color)
+    # Make plot half the width of the main window
+    label_plot.pack(side="right", fill="both", expand=True)
+    # Make the text 3/4 of the way to the right
+    label_plot.place(relx=.725, rely=.5, anchor="center")
+    # Make text greyed out
+    label_plot.configure(foreground="#b0b0b0")
+
 
     # TODO: Put here until mainloop() in own function to mimic "while running" and put init vars outside of it
     # Create a label
@@ -95,7 +104,9 @@ def main():
 
     # Make the canvas into a frame
     global frame_main
-    frame_main = tk.Frame(main_window, width=width_main_window * .05, height=height_main_window, bg=main_window.cget("bg"))
+    # frame_main = tk.Frame(main_window, width=width_main_window * .05, height=height_main_window, bg=main_window.cget("bg"))
+    frame_main = tk.Frame(main_window, width=width_main_window * .05, height=height_main_window, bg="white")
+
     # frame_main = tk.Frame(main_window, width=window_width * .05, height=window_height, bg="red")
     # frame_main.pack(side="left", fill="both", expand=True)
     frame_main.pack(side="left", fill="both")
@@ -118,7 +129,7 @@ def main():
 
     # Start date
     entry_sd = Entry(frame_main, width=int(frame_main.winfo_width() * .1))
-    entry_sd.insert(0, "Enter a Start Date")
+    entry_sd.insert(0, "Enter a Start Date: MM-DD-YYYY")
     entry_sd.bind("<Button-1>", lambda event: entry_sd.delete(0, "end"))
     entry_sd.pack(side="top", fill="both", padx=20, pady=10)
     entry_sd.focus_set()
@@ -126,18 +137,30 @@ def main():
 
     # End date
     entry_ed = Entry(frame_main, width=int(frame_main.winfo_width() * .1))
-    entry_ed.insert(0, "Enter an End Date")
+    entry_ed.insert(0, "Enter an End Date: MM-DD-YYYY")
     entry_ed.bind("<Button-1>", lambda event: entry_ed.delete(0, "end"))
     entry_ed.pack(side="top", fill="both", padx=20, pady=10)
     entry_ed.focus_set()
     entry_ed.update()
 
     def create_loading_label():
+        global label
+        # If label already exists, destroy it
+        if label is not None:
+            label.destroy()
         # Use a label instead of a text box for under the button
         loading_text = str(percentage_global) + "% confident level that " + entry_stock.get() + " will continue to perform well."
         label = ttk.Label(frame_main, text=loading_text)
         label.pack(side="top", fill="both", padx=20, pady=10)
-        label.configure(background="red")
+
+        if percentage_global >= 75:
+            label.configure(background="#97f576")
+            # label.attributes('-alpha', 0.5)
+        elif percentage_global >= 50 and percentage_global <= 74:
+            label.configure(background="gold2")
+        elif percentage_global <= 49:
+            label.configure(background="brown1")
+
         label.update()
 
     # All algorithms are run when this button is pressed.
@@ -172,7 +195,7 @@ def main():
             # Set dark theme
             main_window.tk.call("set_theme", "dark")
 
-    # Remember, you have to use ttk widgets
+    # Remember to use ttk widgets
     button = ttk.Button(frame_main, text="Change theme!", command=change_theme)
     button.pack(side="bottom", padx=20, pady=10)
     button.update()
@@ -213,24 +236,25 @@ def plot_draw():
     global canvas_plot
     global scrollbar_plot
 
-    # # Create a frame to hold the canvas and scrollbar
+    # Destroy current plot to draw new one
     if plots_frame is not None:
         plots_frame.destroy()
         frame_plot.destroy()
         canvas_plot.destroy()
-        # scrollbar_plot.destroy()
 
-    frame_plot = ttk.Frame(main_window)
-    frame_plot.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-    # Recreate the frame each time this function is called
+    style = ttk.Style(main_window)
+    #style.configure("TFrame", background="red")
+    style.configure("plot.TFrame")
 
     # Calculate the width for the frame
     frame_width = int(main_window.winfo_width() / 4)
-
-    # Configure the frame width
-    frame_plot.config(width=frame_width)
+    frame_plot = ttk.Frame(main_window, width=frame_width, style="plot.TFrame")
+    frame_plot.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+    # add border to frame_plot
+    frame_plot.configure(borderwidth=2, relief="raised")
 
     # Create a canvas for the plots
+    # canvas_plot = tk.Canvas(frame_plot, bg="blue")
     canvas_plot = tk.Canvas(frame_plot)
     canvas_plot.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -263,7 +287,7 @@ def plot_draw():
             scrollbar.pack_forget()
 
     main_window.bind("<Configure>", on_window_resize)
-    main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation
+    main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation (sure ok python)
 
 
 
@@ -277,6 +301,7 @@ model_hi_lo = None
 percentage_global: float = 0
 hi_lo_text: str = ""
 macd_text: str = ""
+plot_bg_color: str = "#f2f2f2"
 def run_search(stock: str, start_date: str, end_date: str):
     '''
         Inits and User Input
@@ -324,30 +349,30 @@ def run_search(stock: str, start_date: str, end_date: str):
 
         '''
             Models:
-                - Each returns a classification or 'good' or 'poor' performance as a '0' or '1'
+                - Each returns a classification of 'poor' or 'good' performance as a '0' or '1'
                 - The collection of the models predictions will be used to determine the final confidence level for investment
         '''
         # global plot_window
         # Call the plots
         regression_result = hi_lo.regression_pred(stock_data)  # Pass the csv file to objects
         print("hi_lo_result: ", regression_result)
-        hi_lo.plot(plots_frame)
+        hi_lo.plot(plots_frame, plot_bg_color)
         # text_widget.insert(tk.END, '\n')  # Add a newline to separate the plots
         macd_result = macd.macd_pred(stock_data)
         print("macd_result: ", macd_result)
-        macd.plot(plots_frame)
+        macd.plot(plots_frame, plot_bg_color)
         svm_result = svm.svm_pred(stock_data)
         print("svm_result: ", svm_result)
-        svm.plot(plots_frame)
-        # random_forest.random_forest_pred(stock_data)
-        # print("random_forest_result: ", random_forest.random_forest_pred(stock_data))
-        # random_forest.plot(plots_frame)
-        # arima_result = arima.arima_pred(stock_data)
-        # print("arima_result: ", arima_result)
-        # arima.plot(plots_frame)
-        # garch_result = garch.garch_pred(stock_data)
-        # print("garch_result: ", garch_result)
-        # garch.plot(plots_frame)
+        svm.plot(plots_frame, plot_bg_color)
+        rf_result = random_forest.random_forest_pred(stock_data)
+        print("random_forest_result: ", random_forest.random_forest_pred(stock_data))
+        random_forest.plot(plots_frame, plot_bg_color)
+        arima_result = arima.arima_pred(stock_data)
+        print("arima_result: ", arima_result)
+        arima.plot(plots_frame, plot_bg_color)
+        garch_result = garch.garch_pred(stock_data)
+        print("garch_result: ", garch_result)
+        garch.plot(plots_frame, plot_bg_color)
         # investor_analysis_result = investor_analysis.get_recommendations(stock)
         # print("investor_analysis_result: ", investor_analysis_result)
         # investor_analysis.plot(plots_frame)
@@ -362,9 +387,11 @@ def run_search(stock: str, start_date: str, end_date: str):
 
         # TODO: This is really gross
         # # Add all results to list
-        # results = [regression_result, macd_result, svm_result, arima_result, garch_result, investor_analysis_result]
+        # results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result, investor_analysis_result]
+        results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result]
+
         # # results = [regression_result, macd_result, svm_result]
-        results = [regression_result, macd_result, svm_result]
+        # results = [regression_result, macd_result, svm_result]
 
         num_ones = sum(result == 1 for result in results)
         num_zeros = sum(result == 0 for result in results)

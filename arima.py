@@ -101,10 +101,11 @@ def arima_pred(dataset_path):
         return 0
 
 
-def plot(plot_window):
+def plot(plot_window, plot_bg_color):
     global train_data_original_scale, test_data_original_scale, fc_series
     # Visualizing the original and forecasted time series
     fig, ax = plt.subplots(figsize=(12, 5), dpi=100)
+    fig.patch.set_facecolor(plot_bg_color)
     ax.plot(train_data_original_scale, label='training')
     ax.plot(test_data_original_scale, color='blue', label='Actual Stock Price')
     ax.plot(fc_series, color='orange', label='Predicted Stock Price')

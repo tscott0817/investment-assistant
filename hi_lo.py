@@ -87,7 +87,7 @@ def nonlinear_regression_elastic(X, y, degree, alpha, l1_ratio):
     y_pred = model.predict(X_poly)
     return y_pred, model.coef_
 
-def plot(plot_window):
+def plot(plot_window, plot_bg_color):
     global data
     global data_csv
     global X
@@ -97,8 +97,13 @@ def plot(plot_window):
     plot_colors = ['red', 'blue', 'green', 'orange', 'purple']
 
     # fig, ax = plt.subplots()
-    fig = plt.figure(facecolor='violet')  # TODO: This should be method param for when the theme is changed
-    ax = fig.add_subplot(111, facecolor='yellow')
+    # fig = plt.figure(facecolor='violet')  # TODO: This should be method param for when the theme is changed
+    # ax = fig.add_subplot(111, facecolor='yellow')
+
+    fig = plt.figure()  # TODO: This should be method param for when the theme is changed
+    # change figure background color
+    fig.patch.set_facecolor(plot_bg_color)
+    ax = fig.add_subplot()
 
     for i, degree in enumerate(poly_degree_values):
         y_pred, model_coef = nonlinear_regression_elastic(X, Y, degree=degree, alpha=2, l1_ratio=0.9)
@@ -130,7 +135,7 @@ def plot(plot_window):
 
     toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
     # TODO: Invert colors of toolbar buttons
-    #   I think they are images, so loop try to loop through toolbar and grab children
+    #   I think they are images, so try to loop through toolbar and grab children
     #   Then invert the colors of each child image?
 
     # for child in toolbar.winfo_children():

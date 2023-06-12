@@ -85,10 +85,11 @@ def svm_pred(dataset):
         return 0
 
 
-def plot(plot_window):
+def plot(plot_window, plot_bg_color):
     # TODO: I guess blue = positive trend and red = negative trend
     global X_test, y_test, clf
     fig, ax = plt.subplots(figsize=(12, 5))
+    fig.patch.set_facecolor(plot_bg_color)
     colors = ['blue' if label == 1 else 'red' for label in y_test]
     ax.scatter(X_test.iloc[:, 0], X_test.iloc[:, 1], c=colors)
     ax.set_xlabel('Open')

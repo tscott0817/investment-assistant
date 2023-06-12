@@ -60,10 +60,11 @@ def garch_pred(stock_data):
         return 1
 
 
-def plot(plot_window):
+def plot(plot_window, plot_bg_color):
     global tsla_data, rolling_predictions
 
     fig, ax = plt.subplots(figsize=(13, 4))
+    fig.patch.set_facecolor(plot_bg_color)
     ax.grid(which="major", axis='y', color='#758D99', alpha=0.3, zorder=1)
     ax.spines[['top', 'right']].set_visible(False)
     plt.plot(tsla_data['Close'][-365:])
