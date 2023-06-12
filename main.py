@@ -4,7 +4,7 @@ import yfinance as yf
 import hi_lo
 import macd
 import svm
-# import investor_analysis
+import investor_analysis
 import arima
 import garch
 import random_forest
@@ -129,7 +129,7 @@ def main():
 
     # Start date
     entry_sd = Entry(frame_main, width=int(frame_main.winfo_width() * .1))
-    entry_sd.insert(0, "Enter a Start Date: MM-DD-YYYY")
+    entry_sd.insert(0, "Enter a Start Date: YYYY-MM-DD")
     entry_sd.bind("<Button-1>", lambda event: entry_sd.delete(0, "end"))
     entry_sd.pack(side="top", fill="both", padx=20, pady=10)
     entry_sd.focus_set()
@@ -137,7 +137,7 @@ def main():
 
     # End date
     entry_ed = Entry(frame_main, width=int(frame_main.winfo_width() * .1))
-    entry_ed.insert(0, "Enter an End Date: MM-DD-YYYY")
+    entry_ed.insert(0, "Enter an End Date: YYYY-MM-DD")
     entry_ed.bind("<Button-1>", lambda event: entry_ed.delete(0, "end"))
     entry_ed.pack(side="top", fill="both", padx=20, pady=10)
     entry_ed.focus_set()
@@ -373,9 +373,9 @@ def run_search(stock: str, start_date: str, end_date: str):
         garch_result = garch.garch_pred(stock_data)
         print("garch_result: ", garch_result)
         garch.plot(plots_frame, plot_bg_color)
-        # investor_analysis_result = investor_analysis.get_recommendations(stock)
-        # print("investor_analysis_result: ", investor_analysis_result)
-        # investor_analysis.plot(plots_frame)
+        investor_analysis_result = investor_analysis.get_recommendations(stock)
+        print("investor_analysis_result: ", investor_analysis_result)
+        investor_analysis.plot(plots_frame)
         # sentimentAnalysis.sentiment_analysis_subreddit(stock)
         # sentimentAnalysisPretrainedBert.sentiment_analysis(stock)
 
@@ -387,8 +387,8 @@ def run_search(stock: str, start_date: str, end_date: str):
 
         # TODO: This is really gross
         # # Add all results to list
-        # results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result, investor_analysis_result]
-        results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result]
+        results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result, investor_analysis_result]
+        # results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result]
 
         # # results = [regression_result, macd_result, svm_result]
         # results = [regression_result, macd_result, svm_result]
