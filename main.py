@@ -36,63 +36,33 @@ def main():
     global main_window
     main_window = tk.Tk()
     main_window.title("Investment Assistant")
-    # main_window.geometry("1920x1080")
-    # main_window.geometry("1280x720")
-    # main_window.geometry("960x540")
-    # main_window.geometry("500x500")
-    # main_window.geometry("800x600")  # Apparently is the default min size for Windows apps?
     main_window.configure(bg=bg_color)
-    # main_window.attributes('-alpha', 0.5)
+    # main_window.attributes('-alpha', 0.5)  # Makes entire window transparent, maybe use for something?
     main_window.resizable(True, True)
-
-    width_main_window: int = 1280  # width for the Tk root
-    height_main_window: int = 720  # height for the Tk root
+    main_window_width: int = 1280  # width for the Tk root
+    main_window_height: int = 720  # height for the Tk root
 
     # get screen width and height
-    width_screen: int = main_window.winfo_screenwidth()  # width of the screen
-    height_screen: int = main_window.winfo_screenheight()  # height of the screen
+    screen_width: int = main_window.winfo_screenwidth()  # width of the screen
+    screen_height: int = main_window.winfo_screenheight()  # height of the screen
 
     # calculate x and y coordinates for the Tk root window
-    pos_x: float = (width_screen / 2) - (width_main_window / 2)
-    pos_y: float = (height_screen / 2) - (height_main_window / 2)
+    pos_x: float = (screen_width / 2) - (main_window_width / 2)
+    pos_y: float = (screen_height / 2) - (main_window_height / 2)
 
     # set the dimensions of the screen
     # and where it is placed
-    main_window.geometry('%dx%d+%d+%d' % (width_main_window, height_main_window, pos_x, pos_y))
+    main_window.geometry('%dx%d+%d+%d' % (main_window_width, main_window_height, pos_x, pos_y))
 
-    # TODO: Put in own function
-    # screen_dpi = main_window.winfo_fpixels('1i')
-    # screen_width = main_window.winfo_screenwidth()
-    # screen_height = main_window.winfo_screenheight()
-    # print(f"Screen DPI: {screen_dpi}")
-    # print(f"Screen Width: {screen_width}")
-    # print(f"Screen Height: {screen_height}")
-    # main_window.update()
-    # window_dpi = main_window.winfo_fpixels('1i')
-    # window_width = main_window.winfo_width()
-    # window_height = main_window.winfo_height()
-    # print(f"Window DPI: {window_dpi}")
-    # print(f"Window Width: {window_width}")
-    # print(f"Window Height: {window_height}")
-
-    # TODO: Probably move out of main
-    # Colors
-    color_search = "#729adb"
-    color_search_light = "#e6e7e8"
-    color_search_dark = "#141414"
     if not check_connection():
         # End mainloop
-        connection_text = "No internet. A stable connection is required to access yahoo finance."
+        connection_text: str = "No internet. A stable connection is required to access yahoo finance."
     else:
-        connection_text = "Stable connection found."
+        connection_text: str = "Stable connection found."
 
-    # Put label in center right side of mainwindow
     label_plot = ttk.Label(main_window, text="Plots Will Display Here", background=bg_color)
-    # Make plot half the width of the main window
     label_plot.pack(side="right", fill="both", expand=True)
-    # Make the text 3/4 of the way to the right
     label_plot.place(relx=.725, rely=.5, anchor="center")
-    # Make text greyed out
     label_plot.configure(foreground="#b0b0b0")
 
 
@@ -104,39 +74,38 @@ def main():
 
     # Make the canvas into a frame
     global frame_main
-    # frame_main = tk.Frame(main_window, width=width_main_window * .05, height=height_main_window, bg=main_window.cget("bg"))
-    frame_main = tk.Frame(main_window, width=width_main_window * .05, height=height_main_window, bg="white")
-
-    # frame_main = tk.Frame(main_window, width=window_width * .05, height=window_height, bg="red")
-    # frame_main.pack(side="left", fill="both", expand=True)
+    frame_main = tk.Frame(main_window, width=main_window_width * .05, height=main_window_height, bg="white")
     frame_main.pack(side="left", fill="both")
-    # Make the frame half the canvas width
-
     frame_main.pack(side="left")
     frame_main.update()
 
-    cl_width: int = frame_main.winfo_width()
-    cl_height: int = frame_main.winfo_height()
-    print(f"Canvas Size: {cl_width}x{cl_height}")
+    entry_width: int = frame_main.winfo_width()
+    entry_height: int = frame_main.winfo_height()
 
-    # # Create an Entry widget to accept User Input
-    entry_stock = Entry(frame_main, width=cl_width)
+    '''
+        Stock Symbol Entry
+    '''
+    entry_stock = Entry(frame_main, width=entry_width)
     entry_stock.insert(0, "Enter Stock Symbol")
     entry_stock.bind("<Button-1>", lambda event: entry_stock.delete(0, "end"))
     entry_stock.pack(side="top", fill="both", padx=20, pady=10)
     entry_stock.focus_set()
     entry_stock.update()
 
-    # Start date
-    entry_sd = Entry(frame_main, width=int(frame_main.winfo_width() * .1))
+    '''
+        Start Date Entry
+    '''
+    entry_sd = Entry(frame_main, width=entry_width)
     entry_sd.insert(0, "Enter a Start Date: YYYY-MM-DD")
     entry_sd.bind("<Button-1>", lambda event: entry_sd.delete(0, "end"))
     entry_sd.pack(side="top", fill="both", padx=20, pady=10)
     entry_sd.focus_set()
     entry_sd.update()
 
-    # End date
-    entry_ed = Entry(frame_main, width=int(frame_main.winfo_width() * .1))
+    '''
+        End Date Entry
+    '''
+    entry_ed = Entry(frame_main, width=entry_width)
     entry_ed.insert(0, "Enter an End Date: YYYY-MM-DD")
     entry_ed.bind("<Button-1>", lambda event: entry_ed.delete(0, "end"))
     entry_ed.pack(side="top", fill="both", padx=20, pady=10)
@@ -196,7 +165,7 @@ def main():
             main_window.tk.call("set_theme", "dark")
 
     # Remember to use ttk widgets
-    button = ttk.Button(frame_main, text="Change theme!", command=change_theme)
+    button: ttk.Button = ttk.Button(frame_main, text="Change theme!", command=change_theme)
     button.pack(side="bottom", padx=20, pady=10)
     button.update()
 
@@ -287,8 +256,7 @@ def plot_draw():
             scrollbar.pack_forget()
 
     main_window.bind("<Configure>", on_window_resize)
-    main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation (sure ok python)
-
+    main_window.after(10, configure_scrollbar)  # Delay execution to allow time for widget creation (sure ok python ???)
 
 
 # TODO: If I want to add loading text to each algo
@@ -298,7 +266,7 @@ def plot_draw():
 stock_data_list: list = []  # Holds the .csv data for each searched stock
 plot_list: list = []
 model_hi_lo = None
-percentage_global: float = 0
+percentage_global: float = 0  # TODO: Would prefer to not have this global, but have too because I can't get return values from tkinter callbacks
 hi_lo_text: str = ""
 macd_text: str = ""
 plot_bg_color: str = "#f2f2f2"
@@ -373,9 +341,9 @@ def run_search(stock: str, start_date: str, end_date: str):
         garch_result = garch.garch_pred(stock_data)
         print("garch_result: ", garch_result)
         garch.plot(plots_frame, plot_bg_color)
-        investor_analysis_result = investor_analysis.get_recommendations(stock)
-        print("investor_analysis_result: ", investor_analysis_result)
-        investor_analysis.plot(plots_frame)
+        # investor_analysis_result = investor_analysis.get_recommendations(stock)
+        # print("investor_analysis_result: ", investor_analysis_result)
+        # investor_analysis.plot(plots_frame)
         # sentimentAnalysis.sentiment_analysis_subreddit(stock)
         # sentimentAnalysisPretrainedBert.sentiment_analysis(stock)
 
@@ -387,18 +355,18 @@ def run_search(stock: str, start_date: str, end_date: str):
 
         # TODO: This is really gross
         # # Add all results to list
-        results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result, investor_analysis_result]
-        # results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result]
+        # results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result, investor_analysis_result]
+        results: list[int] = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result]
 
         # # results = [regression_result, macd_result, svm_result]
         # results = [regression_result, macd_result, svm_result]
 
-        num_ones = sum(result == 1 for result in results)
-        num_zeros = sum(result == 0 for result in results)
+        num_ones: int = sum(result == 1 for result in results)
+        num_zeros: int = sum(result == 0 for result in results)
 
         if num_ones + num_zeros > 0:
-            ratio = num_ones / (num_ones + num_zeros)
-            percentage = ratio * 100
+            ratio: float = num_ones / (num_ones + num_zeros)
+            percentage: float = ratio * 100
             # Force percentage to be 2 decimal places
             percentage = float("{:.2f}".format(percentage))
             print(f"There is a {percentage:.2f}% confidence level of {stock} stock performing well.")
