@@ -1,5 +1,6 @@
 # Personal Investment Assistant
-Use this small program to analyze company stocks at any period of time.
+Use this small program to analyze company stocks at any period of time and evaluate to a confidence level as 
+to whether the company is likely to perform well or poorly in the future. 
 
 ![Investment](https://i.imgur.com/ajdYtEq.png)
 

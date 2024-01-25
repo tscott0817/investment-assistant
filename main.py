@@ -334,10 +334,10 @@ def run_search(stock: str, start_date: str, end_date: str):
         svm.plot(plots_frame, plot_bg_color)
         rf_result = random_forest.random_forest_pred(stock_data)
         print("random_forest_result: ", random_forest.random_forest_pred(stock_data))
-        random_forest.plot(plots_frame, plot_bg_color)
+        # random_forest.plot(plots_frame, plot_bg_color)
         arima_result = arima.arima_pred(stock_data)
         print("arima_result: ", arima_result)
-        arima.plot(plots_frame, plot_bg_color)
+        # arima.plot(plots_frame, plot_bg_color)
         garch_result = garch.garch_pred(stock_data)
         print("garch_result: ", garch_result)
         garch.plot(plots_frame, plot_bg_color)
@@ -353,7 +353,6 @@ def run_search(stock: str, start_date: str, end_date: str):
         # text_widget.configure(yscrollcommand=scrollbar.set)
 
 
-        # TODO: This is really gross
         # # Add all results to list
         # results = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result, investor_analysis_result]
         results: list[int] = [regression_result, macd_result, svm_result, rf_result, arima_result, garch_result]
